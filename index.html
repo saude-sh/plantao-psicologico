@@ -4175,6 +4175,18 @@
       const adminsTab = document.getElementById('adminTabAdmins');
       adminsTab.style.display = loggedAdmin.role === 'super_admin' ? '' : 'none';
 
+      // Se admin (nao super) esta na aba admins, volta para profs
+      if (loggedAdmin.role !== 'super_admin') {
+        const adminsPanel = document.getElementById('admin-tab-admins');
+        if (adminsPanel && adminsPanel.classList.contains('active')) {
+          adminsPanel.classList.remove('active');
+          document.getElementById('admin-tab-profs').classList.add('active');
+          // Reset tab buttons
+          document.querySelectorAll('#view-admin-dashboard .dashboard-tab').forEach(t => t.classList.remove('active'));
+          document.querySelector('#view-admin-dashboard .dashboard-tab').classList.add('active');
+        }
+      }
+
       const activeBookings = bookings.filter(b => b.status === 'confirmed');
       const futureSlots = slots.filter(s => s.date >= today);
       const completedBookings = bookings.filter(b => b.status === 'completed');
