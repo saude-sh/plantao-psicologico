@@ -2129,11 +2129,24 @@
       // Carrega missoes seed se ainda nao existir
       if (!getData(STORAGE_KEYS.missoes) || (getData(STORAGE_KEYS.missoes) || []).length === 0) {
         setData(STORAGE_KEYS.missoes, MISSOES_SEED);
+        // Sincroniza seed com o Sheets
+        if (API_URL) syncToApi('Missoes', MISSOES_SEED);
       }
 
       // Tenta sincronizar com API se configurada
       if (API_URL) {
-        syncFromApi().then(() => {
+        syncFromApi().then((syncedMissoes) => {
+          // Se a aba Missoes no Sheets esta vazia, envia o seed
+          const missoesLocal = getData(STORAGE_KEYS.missoes) || [];
+          if (missoesLocal.length > 0) {
+            apiCall({ action: 'getAll', sheet: 'Missoes' }).then(sheetMissoes => {
+              if (!sheetMissoes || sheetMissoes.length === 0) {
+                syncToApi('Missoes', missoesLocal);
+                console.log('[API] Missoes seed enviado para o Sheets');
+              }
+            });
+          }
+
           // Re-renderiza a view atual apos sincronizar
           const activeView = document.querySelector('.view.active');
           if (activeView) {
@@ -4335,6 +4348,7 @@
         const missoes = getData(STORAGE_KEYS.missoes) || [];
         missoes.push({ id: 'ms-' + Date.now(), missao, casa, fcEmail: document.getElementById('missaoFcEmail').value.trim(), secretariaEmail: document.getElementById('missaoSecEmail').value.trim() });
         setData(STORAGE_KEYS.missoes, missoes);
+        syncToApi('Missoes', missoes);
         closeDynamicModal();
         renderMissoesTable();
         showToast('Casa comunitaria adicionada!', 'success');
@@ -4355,6 +4369,7 @@
         if (!missao || !casa) { showToast('Preencha Missao e Casa.', 'error'); return; }
         const updated = missoes.map(x => x.id === id ? { ...x, missao, casa, fcEmail: document.getElementById('missaoFcEmail').value.trim(), secretariaEmail: document.getElementById('missaoSecEmail').value.trim() } : x);
         setData(STORAGE_KEYS.missoes, updated);
+        syncToApi('Missoes', updated);
         closeDynamicModal();
         renderMissoesTable();
         showToast('Casa atualizada!', 'success');
@@ -4365,6 +4380,7 @@
       if (!confirm('Tem certeza que deseja excluir esta casa comunitaria?')) return;
       const missoes = (getData(STORAGE_KEYS.missoes) || []).filter(m => m.id !== id);
       setData(STORAGE_KEYS.missoes, missoes);
+      syncToApi('Missoes', missoes);
       renderMissoesTable();
       showToast('Casa excluida.', 'success');
     }
