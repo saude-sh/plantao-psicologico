@@ -2001,17 +2001,19 @@
 
       try {
         // Buscar todas as abas em paralelo
-        const [profs, slots, bookings, admins] = await Promise.all([
+        const [profs, slots, bookings, admins, missoes] = await Promise.all([
           apiCall({ action: 'getAll', sheet: 'Profissionais' }),
           apiCall({ action: 'getAll', sheet: 'Slots' }),
           apiCall({ action: 'getAll', sheet: 'Agendamentos' }),
-          apiCall({ action: 'getAll', sheet: 'Admins' })
+          apiCall({ action: 'getAll', sheet: 'Admins' }),
+          apiCall({ action: 'getAll', sheet: 'Missoes' })
         ]);
 
         if (profs !== null) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(profs));
         if (slots !== null) localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
         if (bookings !== null) localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify(bookings));
         if (admins !== null) localStorage.setItem('plantao_admins', JSON.stringify(admins));
+        if (missoes !== null && missoes.length > 0) localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(missoes));
 
         apiAvailable = true;
         syncInProgress = false;
@@ -2474,6 +2476,7 @@
 
       bookings.push(booking);
       setData(STORAGE_KEYS.bookings, bookings);
+      syncToApi('Agendamentos', bookings);
 
       closeBookingModal();
 
@@ -2578,8 +2581,7 @@
         if (!prof.termoAceitoEm) {
           showTermoVoluntariado();
         } else {
-          showView('dashboard');
-          renderDashboard();
+          showView('professional');
           showToast(`Bem-vindo(a), ${prof.name}!`, 'success');
         }
       } else {
@@ -2809,6 +2811,7 @@
       });
 
       setData(STORAGE_KEYS.slots, slots);
+      syncToApi('Slots', slots);
       showToast(`Horario adicionado: ${formatDateBR(date)} as ${time}`, 'success');
       renderDashboard();
     }
@@ -2863,6 +2866,7 @@
       }
 
       setData(STORAGE_KEYS.slots, slots);
+      syncToApi('Slots', slots);
       showToast(`${count} horarios recorrentes criados!`, 'success');
 
       // Clear selections
@@ -2884,11 +2888,13 @@
           return b;
         });
         setData(STORAGE_KEYS.bookings, updatedBookings);
+        syncToApi('Agendamentos', updatedBookings);
       }
 
       let slots = getData(STORAGE_KEYS.slots) || [];
       slots = slots.filter(s => s.id !== slotId);
       setData(STORAGE_KEYS.slots, slots);
+      syncToApi('Slots', slots);
       showToast('Horario removido.', 'info');
       renderDashboard();
     }
@@ -3359,6 +3365,7 @@
 
       bookings.push(returnBooking);
       setData(STORAGE_KEYS.bookings, bookings);
+      syncToApi('Agendamentos', bookings);
 
       closeReturnModal();
       showToast(`Retorno agendado! ${originalBooking.patientName} em ${formatDateBR(slot.date)} as ${slot.time}`, 'success');
