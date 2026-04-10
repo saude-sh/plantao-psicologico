@@ -1151,6 +1151,62 @@
             <input type="password" class="form-input" id="loginPassword" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter') professionalLogin()">
           </div>
           <button class="btn btn-success" style="width:100%; margin-top: 0.5rem;" onclick="professionalLogin()">Entrar</button>
+          <div style="text-align:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border);">
+            <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:0.5rem;">Ainda nao tem acesso?</p>
+            <button class="btn btn-outline" style="width:100%;" onclick="showSelfRegister()">Quero me cadastrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO DE AUTOCADASTRO -->
+      <div id="selfRegisterForm" class="login-container" style="display:none;">
+        <div class="login-header" style="background: linear-gradient(135deg, var(--accent), #e08e0b);">
+          <h2>Cadastro de Profissional</h2>
+          <p>Preencha seus dados. A coordenacao ira revisar e aprovar seu cadastro.</p>
+        </div>
+        <div class="login-body">
+          <div id="registerError" class="login-error" style="display:none;"></div>
+          <div id="registerSuccess" style="display:none; background:#d1fae5; border:1px solid #86efac; color:#166534; padding:1rem; border-radius:8px; text-align:center; margin-bottom:1rem;">
+            <strong>Cadastro enviado!</strong><br>Aguarde a aprovacao da coordenacao. Voce recebera um e-mail quando seu acesso for liberado.
+          </div>
+          <div id="registerFields">
+            <div class="form-group">
+              <label>Nome completo <span class="required">*</span></label>
+              <input type="text" class="form-input" id="regName">
+            </div>
+            <div class="form-group">
+              <label>E-mail <span class="required">*</span></label>
+              <input type="email" class="form-input" id="regEmail">
+            </div>
+            <div class="form-group">
+              <label>Telefone (WhatsApp)</label>
+              <input type="tel" class="form-input" id="regPhone" placeholder="(00) 00000-0000">
+            </div>
+            <div class="form-group">
+              <label>Especialidade <span class="required">*</span></label>
+              <select class="form-input" id="regSpecialty">
+                <option value="Psicologia">Psicologia</option>
+                <option value="Psiquiatria">Psiquiatria</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Registro profissional (CRP/CRM) <span class="required">*</span></label>
+              <input type="text" class="form-input" id="regRegistry" placeholder="Ex: CRP 06/12345">
+            </div>
+            <div class="form-group">
+              <label>Crie uma senha de acesso <span class="required">*</span></label>
+              <input type="password" class="form-input" id="regPassword" placeholder="Minimo 6 caracteres">
+            </div>
+            <div class="form-group">
+              <label>Confirme a senha <span class="required">*</span></label>
+              <input type="password" class="form-input" id="regPasswordConfirm" placeholder="Repita a senha">
+            </div>
+            <button class="btn btn-success" style="width:100%; margin-top:0.5rem;" onclick="submitSelfRegister()">Enviar Cadastro</button>
+          </div>
+          <div style="text-align:center; margin-top:1rem;">
+            <a href="#" onclick="hideSelfRegister(); return false;" style="font-size:0.85rem; color:var(--primary);">Voltar para o login</a>
+          </div>
         </div>
       </div>
     </div>
@@ -1355,6 +1411,8 @@
       <!-- Tab: Professionals -->
       <div id="admin-tab-profs" class="tab-panel active">
         <div class="slot-manager">
+          <!-- Cadastros Pendentes -->
+          <div id="pendingProfsContainer"></div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <h3 style="margin: 0;">Profissionais Cadastrados</h3>
             <button class="btn btn-success" onclick="openAddProfModal()">+ Novo Profissional</button>
@@ -2566,9 +2624,99 @@
       const profs = getData(STORAGE_KEYS.professionals) || [];
       const select = document.getElementById('loginProfSelect');
       select.innerHTML = '<option value="">-- Selecione --</option>';
-      profs.forEach(p => {
+      profs.filter(p => p.status !== 'pendente').forEach(p => {
         select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
       });
+    }
+
+    // =============================================
+    // AUTOCADASTRO DE PROFISSIONAL
+    // =============================================
+    function showSelfRegister() {
+      document.querySelector('#view-professional .login-container:first-of-type').style.display = 'none';
+      document.getElementById('selfRegisterForm').style.display = 'block';
+      document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
+      document.getElementById('registerFields').style.display = 'block';
+      ['regName','regEmail','regPhone','regRegistry','regPassword','regPasswordConfirm'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    function hideSelfRegister() {
+      document.getElementById('selfRegisterForm').style.display = 'none';
+      document.querySelector('#view-professional .login-container:first-of-type').style.display = 'block';
+    }
+
+    function submitSelfRegister() {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const specialty = document.getElementById('regSpecialty').value;
+      const registry = document.getElementById('regRegistry').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+      const errorDiv = document.getElementById('registerError');
+
+      if (!name || !email || !registry || !password) {
+        errorDiv.textContent = 'Preencha todos os campos obrigatorios.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (password.length < 6) {
+        errorDiv.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (password !== passwordConfirm) {
+        errorDiv.textContent = 'As senhas nao coincidem.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Verifica se e-mail ja esta cadastrado
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      if (profs.some(p => p.email.toLowerCase() === email.toLowerCase())) {
+        errorDiv.textContent = 'Este e-mail ja esta cadastrado. Se esqueceu sua senha, entre em contato com a coordenacao.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Cria profissional com status pendente
+      const newProf = {
+        id: 'prof-' + Date.now(),
+        name: name,
+        email: email,
+        phone: phone,
+        specialty: specialty,
+        password: password,
+        registry: registry,
+        notes: '',
+        status: 'pendente',
+        termoAceitoEm: '',
+        cadastradoEm: new Date().toISOString()
+      };
+
+      profs.push(newProf);
+      setData(STORAGE_KEYS.professionals, profs);
+      syncToApi('Profissionais', profs);
+
+      // Notifica admin por email
+      sendEmailNotification('notifyProfessional', {
+        profName: 'Coordenacao',
+        profEmail: 'comissaosm@comshalom.org',
+        patientName: name,
+        date: new Date().toLocaleDateString('pt-BR'),
+        time: '',
+        duration: '',
+        subject: 'Novo cadastro de profissional aguardando aprovacao',
+        customMessage: 'O profissional ' + name + ' (' + email + ', ' + registry + ') solicitou cadastro no sistema e aguarda sua aprovacao.'
+      });
+
+      // Mostra sucesso
+      errorDiv.style.display = 'none';
+      document.getElementById('registerFields').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'block';
     }
 
     function professionalLogin() {
@@ -4053,6 +4201,7 @@
         </div>
       `;
 
+      renderPendingProfs();
       renderProfsTable();
       renderAdminBookings();
       renderAdminSlots();
@@ -4062,8 +4211,88 @@
     }
 
     // ===== PROFESSIONALS CRUD =====
-    function renderProfsTable() {
+    // ===== CADASTROS PENDENTES =====
+    function renderPendingProfs() {
       const profs = getData(STORAGE_KEYS.professionals) || [];
+      const pending = profs.filter(p => p.status === 'pendente');
+      const container = document.getElementById('pendingProfsContainer');
+      if (!container) return;
+
+      if (pending.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = `
+        <div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; padding:1.2rem; margin-bottom:1.5rem;">
+          <h3 style="margin:0 0 0.8rem; color:#92400e; font-size:1rem;">⏳ Cadastros Aguardando Aprovação (${pending.length})</h3>`;
+
+      for (const p of pending) {
+        const dataCad = p.cadastradoEm ? new Date(p.cadastradoEm).toLocaleDateString('pt-BR') : '-';
+        html += `
+          <div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.8rem; border:1px solid #fde68a;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <strong style="font-size:1rem;">${p.name}</strong>
+                <div style="font-size:0.85rem; color:var(--text-light); margin-top:0.3rem;">
+                  ${p.specialty} | ${p.registry || '-'}<br>
+                  ${p.email} | ${p.phone || '-'}<br>
+                  Cadastro em: ${dataCad}
+                </div>
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-success" style="padding:0.5rem 1rem; font-size:0.85rem;" onclick="approveProf('${p.id}')">✓ Aprovar</button>
+                <button class="btn" style="padding:0.5rem 1rem; font-size:0.85rem; background:var(--error);" onclick="rejectProf('${p.id}')">✗ Recusar</button>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function approveProf(profId) {
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      const prof = profs.find(p => p.id === profId);
+      if (!prof) return;
+
+      const updated = profs.map(p => p.id === profId ? { ...p, status: 'ativo' } : p);
+      setData(STORAGE_KEYS.professionals, updated);
+      syncToApi('Profissionais', updated);
+
+      // Envia e-mail de aprovação
+      sendEmailNotification('notifyPatientConfirmation', {
+        patientName: prof.name,
+        patientEmail: prof.email,
+        profName: 'Comissão de Saúde Mental',
+        date: 'Aprovado em ' + new Date().toLocaleDateString('pt-BR'),
+        time: '',
+        duration: '',
+        subject: 'Seu cadastro foi aprovado! - Plantão Psicológico Shalom',
+        customMessage: 'Seu cadastro como profissional voluntário foi aprovado pela coordenação. Você já pode acessar o sistema com seu e-mail e senha cadastrados.'
+      });
+
+      showToast(`${prof.name} aprovado(a)! E-mail de notificação enviado.`, 'success');
+      renderAdminDashboard();
+    }
+
+    function rejectProf(profId) {
+      if (!confirm('Tem certeza que deseja recusar este cadastro? O profissional será removido.')) return;
+
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      const prof = profs.find(p => p.id === profId);
+      const updated = profs.filter(p => p.id !== profId);
+      setData(STORAGE_KEYS.professionals, updated);
+      syncToApi('Profissionais', updated);
+
+      showToast('Cadastro recusado.', 'info');
+      renderAdminDashboard();
+    }
+
+    function renderProfsTable() {
+      const allProfs = getData(STORAGE_KEYS.professionals) || [];
+      const profs = allProfs.filter(p => p.status !== 'pendente');
       const slots = getData(STORAGE_KEYS.slots) || [];
       const bookings = getData(STORAGE_KEYS.bookings) || [];
       const today = formatDate(new Date());
