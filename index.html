@@ -4101,6 +4101,7 @@
           password: 'admin2025shalom'
         }];
         setData('plantao_admins', admins);
+        syncToApi('Admins', admins);
       }
       return admins;
     }
@@ -4172,11 +4173,7 @@
 
       // Show admins tab only for super_admin
       const adminsTab = document.getElementById('adminTabAdmins');
-      if (loggedAdmin.role === 'super_admin') {
-        adminsTab.style.display = '';
-      } else {
-        adminsTab.style.display = 'none';
-      }
+      adminsTab.style.display = loggedAdmin.role === 'super_admin' ? '' : 'none';
 
       const activeBookings = bookings.filter(b => b.status === 'confirmed');
       const futureSlots = slots.filter(s => s.date >= today);
@@ -4734,6 +4731,7 @@
       }
 
       setData('plantao_admins', admins);
+      syncToApi('Admins', admins);
       closeAdminUserModal();
       renderAdminDashboard();
     }
@@ -4762,6 +4760,7 @@
       }
 
       setData('plantao_admins', updated);
+      syncToApi('Admins', updated);
       showToast(`Administrador "${admin.name}" excluido.`, 'info');
       renderAdminDashboard();
     }
@@ -4811,6 +4810,7 @@
         if (newPass) admins[idx].password = newPass;
         loggedAdmin = admins[idx];
         setData('plantao_admins', admins);
+        syncToApi('Admins', admins);
       }
 
       closeAdminSettings();
