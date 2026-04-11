@@ -1030,41 +1030,109 @@
   <!-- VIEW: PATIENT - CONSENT -->
   <!-- ============================================ -->
   <div id="view-consent" class="view active">
-    <div class="schedule-hero">
-      <div class="container">
-        <h1>Plantao de Aconselhamento Psicologico</h1>
-        <p>Agende seu atendimento diretamente com nossos profissionais voluntarios. Escolha o melhor horario para voce.</p>
+    <!-- TELA 1: BEM-VINDO -->
+    <div id="welcomeScreen">
+      <div class="schedule-hero" style="padding: 3rem 0;">
+        <div class="container" style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🕊️</div>
+          <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Plantão de Aconselhamento Psicológico</h1>
+          <p style="font-size: 1.05rem; opacity: 0.9;">Comissão de Saúde Mental - Comunidade Católica Shalom</p>
+        </div>
+      </div>
+
+      <div class="container" style="max-width: 800px; padding: 2rem 20px;">
+        <!-- O que e o servico -->
+        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 1.5rem;">
+          <h2 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem;">O que é o Plantão?</h2>
+          <p style="line-height: 1.8; color: var(--text); margin-bottom: 1rem;">O Plantão de Aconselhamento Psicológico é um serviço de <strong>suporte psicológico pontual e imediato</strong>, oferecido por profissionais voluntários da Comunidade Católica Shalom. Não se caracteriza como psicoterapia continuada.</p>
+          <p style="line-height: 1.8; color: var(--text);">É um espaço de <strong>acolhimento, escuta e orientação</strong> para missionários e agentes formativos que estejam vivenciando situações que demandem cuidado emocional.</p>
+        </div>
+
+        <!-- Como funciona -->
+        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 1.5rem;">
+          <h2 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1.2rem;">Como funciona?</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem;">
+            <div style="text-align: center; padding: 1rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
+              <strong style="display:block; margin-bottom:0.3rem; color:var(--primary);">1. Agende</strong>
+              <p style="font-size: 0.85rem; color: var(--text-light);">Escolha um horário disponível na agenda dos nossos profissionais</p>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+              <strong style="display:block; margin-bottom:0.3rem; color:var(--primary);">2. Atendimento</strong>
+              <p style="font-size: 0.85rem; color: var(--text-light);">Sessão de 60 a 90 minutos com um profissional qualificado</p>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤝</div>
+              <strong style="display:block; margin-bottom:0.3rem; color:var(--primary);">3. Acompanhamento</strong>
+              <p style="font-size: 0.85rem; color: var(--text-light);">Até 3 sessões, com possibilidade de encaminhamento se necessário</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informacoes importantes -->
+        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 1.5rem;">
+          <h2 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem;">Informações importantes</h2>
+          <ul style="line-height: 2; color: var(--text); padding-left: 1.2rem;">
+            <li>O serviço é <strong>gratuito</strong> e realizado por profissionais voluntários.</li>
+            <li>Todas as informações são tratadas com <strong>absoluto sigilo</strong>, conforme o Código de Ética Profissional do Psicólogo.</li>
+            <li>Seus dados pessoais são protegidos pela <strong>LGPD (Lei 13.709/2018)</strong>.</li>
+            <li>Caso seja identificada a necessidade de acompanhamento contínuo, o profissional fará o <strong>encaminhamento adequado</strong>.</li>
+          </ul>
+        </div>
+
+        <!-- Botao de prosseguir -->
+        <div style="text-align: center; margin: 2rem 0;">
+          <button class="btn btn-success btn-lg" style="padding: 1rem 3rem; font-size: 1.1rem;" onclick="showConsentTerm()">Quero agendar meu atendimento</button>
+          <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.8rem;">Você precisará aceitar o Termo de Consentimento para prosseguir.</p>
+        </div>
+
+        <!-- Contato -->
+        <div style="text-align: center; padding: 1.5rem; background: #f0f4ff; border-radius: 10px; margin-bottom: 2rem;">
+          <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.3rem;">Dúvidas? Entre em contato com a Comissão de Saúde Mental:</p>
+          <a href="mailto:comissaosm@comshalom.org" style="color: var(--primary); font-weight: 600;">comissaosm@comshalom.org</a>
+        </div>
       </div>
     </div>
 
-    <div class="container">
-      <div class="consent-banner">
-        <div class="consent-banner-header">
-          <h2>Termo de Consentimento Livre e Esclarecido</h2>
-          <p>Leia atentamente antes de prosseguir</p>
+    <!-- TELA 2: TERMO DE CONSENTIMENTO -->
+    <div id="consentScreen" style="display: none;">
+      <div class="schedule-hero">
+        <div class="container">
+          <h1>Plantão de Aconselhamento Psicológico</h1>
+          <p>Quase lá! Leia e aceite o Termo de Consentimento para prosseguir.</p>
         </div>
-        <div class="consent-banner-body">
-          <p><strong>Prezado(a) Missionario(a) / Agente Formativo(a),</strong></p>
-          <p>Este documento tem como objetivo esclarecer os procedimentos, beneficios, limitacoes e compromissos relacionados ao servico de Plantao de Aconselhamento Psicologico oferecido pela Comunidade Catolica Shalom, em conformidade com a <strong>Lei Geral de Protecao de Dados (LGPD - Lei 13.709/2018)</strong>.</p>
+      </div>
 
-          <h4>1. NATUREZA DO SERVICO</h4>
-          <p>O Plantao de Aconselhamento Psicologico e um servico de suporte psicologico pontual e imediato, nao se caracterizando como psicoterapia continuada. Consiste em 1 a 3 sessoes de atendimento com duracao entre 60 e 90 minutos cada.</p>
+      <div class="container">
+        <div class="consent-banner">
+          <div class="consent-banner-header">
+            <h2>Termo de Consentimento Livre e Esclarecido</h2>
+            <p>Leia atentamente antes de prosseguir</p>
+          </div>
+          <div class="consent-banner-body">
+            <p><strong>Prezado(a) Missionário(a) / Agente Formativo(a),</strong></p>
+            <p>Este documento tem como objetivo esclarecer os procedimentos, benefícios, limitações e compromissos relacionados ao serviço de Plantão de Aconselhamento Psicológico oferecido pela Comunidade Católica Shalom, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)</strong>.</p>
 
-          <h4>2. OBJETIVOS E LIMITACOES</h4>
-          <p>O objetivo e oferecer acolhimento, orientacao e suporte emocional para situacoes especificas. Nao substitui um processo psicoterapeutico regular. Caso seja identificada a necessidade de acompanhamento continuo, o profissional fara o encaminhamento adequado.</p>
+            <h4>1. NATUREZA DO SERVIÇO</h4>
+            <p>O Plantão de Aconselhamento Psicológico é um serviço de suporte psicológico pontual e imediato, não se caracterizando como psicoterapia continuada. Consiste em 1 a 3 sessões de atendimento com duração entre 60 e 90 minutos cada.</p>
 
-          <h4>3. PROTECAO DOS SEUS DADOS PESSOAIS (LGPD)</h4>
-          <p>Seus dados pessoais serao tratados exclusivamente para as finalidades do atendimento psicologico. Voce tem direito a acessar, corrigir e solicitar a exclusao dos seus dados a qualquer momento.</p>
+            <h4>2. OBJETIVOS E LIMITAÇÕES</h4>
+            <p>O objetivo é oferecer acolhimento, orientação e suporte emocional para situações específicas. Não substitui um processo psicoterapêutico regular. Caso seja identificada a necessidade de acompanhamento contínuo, o profissional fará o encaminhamento adequado.</p>
 
-          <h4>4. CONFIDENCIALIDADE E SIGILO</h4>
-          <p>Todas as informacoes compartilhadas serao mantidas em absoluto sigilo, de acordo com o Codigo de Etica Profissional do Psicologo e a LGPD.</p>
+            <h4>3. PROTEÇÃO DOS SEUS DADOS PESSOAIS (LGPD)</h4>
+            <p>Seus dados pessoais serão tratados exclusivamente para as finalidades do atendimento psicológico. Você tem direito a acessar, corrigir e solicitar a exclusão dos seus dados a qualquer momento.</p>
 
-          <h4>5. CONTATO LGPD</h4>
-          <p>E-mail: juridico3@comshalom.org</p>
-        </div>
-        <div class="consent-banner-footer">
-          <button class="btn btn-danger" onclick="window.location.href='plantao_web.html'">Nao Aceito</button>
-          <button class="btn btn-success btn-lg" onclick="acceptPatientConsent()">Aceito e Concordo - Prosseguir</button>
+            <h4>4. CONFIDENCIALIDADE E SIGILO</h4>
+            <p>Todas as informações compartilhadas serão mantidas em absoluto sigilo, de acordo com o Código de Ética Profissional do Psicólogo e a LGPD.</p>
+
+            <h4>5. CONTATO LGPD</h4>
+            <p>E-mail: juridico3@comshalom.org</p>
+          </div>
+          <div class="consent-banner-footer">
+            <button class="btn btn-outline" onclick="hideConsentTerm()">Voltar</button>
+            <button class="btn btn-success btn-lg" onclick="acceptPatientConsent()">Aceito e Concordo - Prosseguir</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2270,6 +2338,18 @@
         }
         document.querySelectorAll('.header-nav button, .mobile-nav button').forEach(b => { if (b.textContent.includes('Admin')) b.classList.add('active'); });
       }
+    }
+
+    function showConsentTerm() {
+      document.getElementById('welcomeScreen').style.display = 'none';
+      document.getElementById('consentScreen').style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    function hideConsentTerm() {
+      document.getElementById('consentScreen').style.display = 'none';
+      document.getElementById('welcomeScreen').style.display = 'block';
+      window.scrollTo(0, 0);
     }
 
     function acceptPatientConsent() {
