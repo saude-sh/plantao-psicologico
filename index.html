@@ -2782,15 +2782,12 @@
       syncToApi('Profissionais', profs);
 
       // Notifica admin por email
-      sendEmailNotification('notifyProfessional', {
-        profName: 'Coordenacao',
-        profEmail: 'comissaosm@comshalom.org',
-        patientName: name,
-        date: new Date().toLocaleDateString('pt-BR'),
-        time: '',
-        duration: '',
-        subject: 'Novo cadastro de profissional aguardando aprovacao',
-        customMessage: 'O profissional ' + name + ' (' + email + ', ' + registry + ') solicitou cadastro no sistema e aguarda sua aprovacao.'
+      sendEmailNotification('notifyNewRegistration', {
+        profName: name,
+        profEmail: email,
+        profRegistry: registry,
+        profSpecialty: specialty,
+        profPhone: phone
       });
 
       // Mostra sucesso
@@ -2814,6 +2811,19 @@
       const prof = profs.find(p => p.id === profId && p.password === password);
 
       if (prof) {
+        // Verifica se o cadastro foi aprovado
+        if (prof.status === 'pendente') {
+          errorDiv.textContent = 'Seu cadastro ainda esta aguardando aprovacao pela coordenacao. Voce recebera um e-mail quando for aprovado.';
+          errorDiv.style.display = 'block';
+          errorDiv.style.background = '#fef3c7';
+          errorDiv.style.border = '1px solid #f59e0b';
+          errorDiv.style.color = '#92400e';
+          errorDiv.style.padding = '1rem';
+          errorDiv.style.borderRadius = '8px';
+          document.getElementById('loginPassword').value = '';
+          return;
+        }
+
         loggedProfessional = prof;
         errorDiv.style.display = 'none';
         document.getElementById('loginPassword').value = '';
@@ -4350,16 +4360,10 @@
       setData(STORAGE_KEYS.professionals, updated);
       syncToApi('Profissionais', updated);
 
-      // Envia e-mail de aprovação
-      sendEmailNotification('notifyPatientConfirmation', {
-        patientName: prof.name,
-        patientEmail: prof.email,
-        profName: 'Comissão de Saúde Mental',
-        date: 'Aprovado em ' + new Date().toLocaleDateString('pt-BR'),
-        time: '',
-        duration: '',
-        subject: 'Seu cadastro foi aprovado! - Plantão Psicológico Shalom',
-        customMessage: 'Seu cadastro como profissional voluntário foi aprovado pela coordenação. Você já pode acessar o sistema com seu e-mail e senha cadastrados.'
+      // Envia e-mail de aprovação ao profissional
+      sendEmailNotification('notifyRegistrationApproved', {
+        profName: prof.name,
+        profEmail: prof.email
       });
 
       showToast(`${prof.name} aprovado(a)! E-mail de notificação enviado.`, 'success');
