@@ -2127,7 +2127,7 @@
 
       try {
         // Buscar todas as abas em paralelo
-        const [profs, slots, bookings, admins, missoes] = await Promise.all([
+        const [profs, slotsRaw, bookings, admins, missoes] = await Promise.all([
           apiCall({ action: 'getAll', sheet: 'Profissionais' }),
           apiCall({ action: 'getAll', sheet: 'Slots' }),
           apiCall({ action: 'getAll', sheet: 'Agendamentos' }),
@@ -2136,9 +2136,9 @@
         ]);
 
         if (profs !== null) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(profs));
-        if (slots !== null) {
+        if (slotsRaw !== null) {
           // Normaliza datas que podem vir como ISO completo do Sheets
-          slots = slots.map(s => ({ ...s, date: normalizeDate(s.date) }));
+          const slots = slotsRaw.map(s => ({ ...s, date: normalizeDate(s.date) }));
           localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
         }
         if (bookings !== null) localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify(bookings));
