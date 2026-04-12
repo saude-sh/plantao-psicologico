@@ -2136,7 +2136,11 @@
         ]);
 
         if (profs !== null) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(profs));
-        if (slots !== null) localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
+        if (slots !== null) {
+          // Normaliza datas que podem vir como ISO completo do Sheets
+          slots = slots.map(s => ({ ...s, date: normalizeDate(s.date) }));
+          localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
+        }
         if (bookings !== null) localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify(bookings));
         if (admins !== null) localStorage.setItem('plantao_admins', JSON.stringify(admins));
         if (missoes !== null && missoes.length > 0) localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(missoes));
@@ -2493,12 +2497,23 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    function normalizeDate(dateStr) {
+      if (!dateStr) return '';
+      // Se vier como ISO completo (ex: "2026-04-15T03:00:00.000Z"), extrai só YYYY-MM-DD
+      if (dateStr.length > 10 && dateStr.includes('T')) {
+        return dateStr.substring(0, 10);
+      }
+      return dateStr;
+    }
+
     function formatDateBR(dateStr) {
+      dateStr = normalizeDate(dateStr);
       const [y, m, d] = dateStr.split('-');
       return `${d}/${m}/${y}`;
     }
 
     function getDayNameFull(dateStr) {
+      dateStr = normalizeDate(dateStr);
       const days = ['Domingo', 'Segunda-feira', 'Terca-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sabado'];
       const d = new Date(dateStr + 'T12:00:00');
       return days[d.getDay()];
