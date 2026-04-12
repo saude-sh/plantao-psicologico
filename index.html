@@ -2078,34 +2078,55 @@
     function setData(key, data) {
       localStorage.setItem(key, JSON.stringify(data));
 
-      // Sincroniza com API em background (nao bloqueia a interface)
-      if (apiAvailable && SHEET_MAP[key]) {
-        syncToApi(SHEET_MAP[key], data);
+      // Sincroniza com API em background com debounce
+      if (API_URL && SHEET_MAP[key]) {
+        syncToApiDebounced(SHEET_MAP[key], data);
       }
+    }
+
+    // Debounce para syncToApi - acumula mudancas por 2 segundos
+    const _syncTimers = {};
+    const _syncQueue = {};
+
+    function syncToApiDebounced(sheetName, data) {
+      _syncQueue[sheetName] = data;
+      if (_syncTimers[sheetName]) clearTimeout(_syncTimers[sheetName]);
+      _syncTimers[sheetName] = setTimeout(() => {
+        const pendingData = _syncQueue[sheetName];
+        delete _syncQueue[sheetName];
+        delete _syncTimers[sheetName];
+        if (pendingData) syncToApi(sheetName, pendingData);
+      }, 2000);
     }
 
     // Envia dados para a API
     async function syncToApi(sheetName, data) {
-      if (!API_URL || syncInProgress) return;
+      if (!API_URL) return;
       try {
-        // Para arrays, envia cada item individualmente ou em bulk
         if (Array.isArray(data)) {
+          console.log('[API Sync] Enviando ' + sheetName + ' (' + data.length + ' registros)');
           await apiCall({ action: 'syncSheet', sheet: sheetName, data: data });
+          console.log('[API Sync] ' + sheetName + ' OK');
         }
       } catch (err) {
         console.warn('[API Sync] Erro ao sincronizar ' + sheetName + ':', err.message);
       }
     }
 
-    // Chamada generica para a API
-    async function apiCall(payload) {
+    // Chamada generica para a API com timeout
+    async function apiCall(payload, timeoutMs = 30000) {
       if (!API_URL) return null;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
+        clearTimeout(timer);
         const result = await response.json();
         if (result.success) {
           return result.data;
@@ -2114,7 +2135,12 @@
           return null;
         }
       } catch (err) {
-        console.warn('[API] Erro de conexao:', err.message);
+        clearTimeout(timer);
+        if (err.name === 'AbortError') {
+          console.warn('[API] Timeout apos ' + (timeoutMs/1000) + 's para:', payload.action);
+        } else {
+          console.warn('[API] Erro de conexao:', err.message);
+        }
         return null;
       }
     }
@@ -2122,37 +2148,54 @@
     // Busca dados da API e atualiza cache local
     async function syncFromApi() {
       if (!API_URL) return;
+      if (syncInProgress) {
+        console.log('[API] Sync ja em andamento, ignorando');
+        return;
+      }
       syncInProgress = true;
       showToast('Sincronizando dados com o servidor...', 'info');
 
-      try {
-        // Buscar todas as abas em paralelo
-        const [profs, slotsRaw, bookings, admins, missoes] = await Promise.all([
-          apiCall({ action: 'getAll', sheet: 'Profissionais' }),
-          apiCall({ action: 'getAll', sheet: 'Slots' }),
-          apiCall({ action: 'getAll', sheet: 'Agendamentos' }),
-          apiCall({ action: 'getAll', sheet: 'Admins' }),
-          apiCall({ action: 'getAll', sheet: 'Missoes' })
-        ]);
+      const sheets = ['Profissionais', 'Slots', 'Agendamentos', 'Admins', 'Missoes'];
+      const storageMap = {
+        'Profissionais': STORAGE_KEYS.professionals,
+        'Slots': STORAGE_KEYS.slots,
+        'Agendamentos': STORAGE_KEYS.bookings,
+        'Admins': 'plantao_admins',
+        'Missoes': STORAGE_KEYS.missoes
+      };
 
-        if (profs !== null) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(profs));
-        if (slotsRaw !== null) {
-          // Normaliza datas que podem vir como ISO completo do Sheets
-          const slots = slotsRaw.map(s => ({ ...s, date: normalizeDate(s.date) }));
-          localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
+      let successCount = 0;
+
+      // Buscar uma aba por vez para evitar sobrecarregar o Apps Script
+      for (const sheet of sheets) {
+        try {
+          const data = await apiCall({ action: 'getAll', sheet: sheet });
+          if (data !== null) {
+            let processedData = data;
+            // Normaliza datas dos slots
+            if (sheet === 'Slots') {
+              processedData = data.map(s => ({ ...s, date: normalizeDate(s.date) }));
+            }
+            // Nao sobrescreve missoes locais com vazio
+            if (sheet === 'Missoes' && processedData.length === 0) continue;
+
+            localStorage.setItem(storageMap[sheet], JSON.stringify(processedData));
+            successCount++;
+          }
+        } catch (err) {
+          console.warn('[API] Erro ao buscar ' + sheet + ':', err.message);
         }
-        if (bookings !== null) localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify(bookings));
-        if (admins !== null) localStorage.setItem('plantao_admins', JSON.stringify(admins));
-        if (missoes !== null && missoes.length > 0) localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(missoes));
-
-        apiAvailable = true;
-        syncInProgress = false;
-        showToast('Dados sincronizados!', 'success');
-        console.log('[API] Sincronizacao completa');
-      } catch (err) {
-        syncInProgress = false;
-        console.warn('[API] Falha na sincronizacao:', err.message);
       }
+
+      apiAvailable = successCount > 0;
+      syncInProgress = false;
+
+      if (successCount > 0) {
+        showToast('Dados sincronizados! (' + successCount + '/' + sheets.length + ' abas)', 'success');
+      } else {
+        showToast('Falha na sincronizacao. Usando dados locais.', 'error');
+      }
+      console.log('[API] Sincronizacao completa: ' + successCount + '/' + sheets.length);
     }
 
     // Envia notificacao por e-mail via API
@@ -2258,23 +2301,17 @@
 
       // Carrega missoes seed se ainda nao existir
       if (!getData(STORAGE_KEYS.missoes) || (getData(STORAGE_KEYS.missoes) || []).length === 0) {
-        setData(STORAGE_KEYS.missoes, MISSOES_SEED);
-        // Sincroniza seed com o Sheets
-        if (API_URL) syncToApi('Missoes', MISSOES_SEED);
+        localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(MISSOES_SEED));
       }
 
       // Tenta sincronizar com API se configurada
       if (API_URL) {
-        syncFromApi().then((syncedMissoes) => {
-          // Se a aba Missoes no Sheets esta vazia, envia o seed
+        syncFromApi().then(() => {
+          // Apos sync, se Missoes veio vazio do Sheets, envia seed
           const missoesLocal = getData(STORAGE_KEYS.missoes) || [];
+          const missoesKey = STORAGE_KEYS.missoes;
           if (missoesLocal.length > 0) {
-            apiCall({ action: 'getAll', sheet: 'Missoes' }).then(sheetMissoes => {
-              if (!sheetMissoes || sheetMissoes.length === 0) {
-                syncToApi('Missoes', missoesLocal);
-                console.log('[API] Missoes seed enviado para o Sheets');
-              }
-            });
+            syncToApi('Missoes', missoesLocal);
           }
 
           // Re-renderiza a view atual apos sincronizar
