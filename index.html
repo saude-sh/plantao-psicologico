@@ -1172,9 +1172,10 @@
       <div style="text-align: center; padding: 1.5rem; background: var(--white); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 2rem;">
         <p style="font-weight: 600; margin-bottom: 0.5rem;">Nao encontrou horario disponivel?</p>
         <p style="color: var(--text-light); margin-bottom: 1rem; font-size: 0.9rem;">Entre em contato conosco para solicitar um agendamento alternativo.</p>
-        <a href="mailto:comissaosm@comshalom.org?subject=Solicita%C3%A7%C3%A3o%20de%20Agendamento%20-%20Plant%C3%A3o%20Psicol%C3%B3gico&body=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20um%20agendamento%20no%20Plant%C3%A3o%20de%20Aconselhamento%20Psicol%C3%B3gico%20da%20Comunidade%20Cat%C3%B3lica%20Shalom." class="btn btn-success" target="_blank" rel="noopener">✉️ Solicitar por E-mail</a>
+        <button class="btn btn-success" onclick="abrirEmail()">✉️ Solicitar por E-mail</button>
         <p style="font-size: 0.78rem; color: var(--text-light); margin-top: 0.6rem;">
-          Ou escreva diretamente para: <strong>comissaosm@comshalom.org</strong>
+          <span id="emailContactAddr">comissaosm@comshalom.org</span>
+          <button onclick="copiarEmail()" style="background:none;border:none;cursor:pointer;font-size:0.78rem;color:var(--primary);text-decoration:underline;padding:0;margin-left:4px;">📋 copiar</button>
         </p>
       </div>
     </div>
@@ -4217,6 +4218,47 @@
     // =============================================
     // TOAST NOTIFICATIONS
     // =============================================
+    function abrirEmail() {
+      const email = 'comissaosm@comshalom.org';
+      const subject = encodeURIComponent('Solicitação de Agendamento - Plantão Psicológico');
+      const body = encodeURIComponent('Olá, gostaria de solicitar um agendamento no Plantão de Aconselhamento Psicológico da Comunidade Católica Shalom.');
+      const mailto = `mailto:${email}?subject=${subject}&body=${body}`;
+
+      // Tenta abrir o app de e-mail
+      const link = document.createElement('a');
+      link.href = mailto;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Após 1.5s, se nada abriu, oferece copiar
+      setTimeout(() => {
+        if (confirm('Não conseguiu abrir o e-mail?\n\nClique OK para copiar o endereço:\ncomissaosm@comshalom.org')) {
+          navigator.clipboard.writeText(email).then(() => {
+            showToast('E-mail copiado! comissaosm@comshalom.org', 'success');
+          }).catch(() => {
+            showToast('Escreva para: comissaosm@comshalom.org', 'info');
+          });
+        }
+      }, 1500);
+    }
+
+    function copiarEmail() {
+      const email = 'comissaosm@comshalom.org';
+      navigator.clipboard.writeText(email).then(() => {
+        showToast('E-mail copiado! ' + email, 'success');
+      }).catch(() => {
+        // fallback para dispositivos sem clipboard API
+        const el = document.getElementById('emailContactAddr');
+        const range = document.createRange();
+        range.selectNode(el);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        showToast('Selecione e copie: ' + email, 'info');
+      });
+    }
+
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
       toast.className = 'toast ' + type;
