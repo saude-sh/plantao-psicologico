@@ -1145,7 +1145,7 @@
     <div class="schedule-hero">
       <div class="container">
         <h1>Agendar Atendimento</h1>
-        <p>Veja os horarios disponiveis de todos os profissionais e escolha o melhor para voce</p>
+        <p>Veja os horários disponíveis de todos os profissionais e escolha o melhor para você</p>
       </div>
     </div>
 
@@ -1161,7 +1161,7 @@
       <div class="calendar-controls">
         <button onclick="changeWeek(-1)">&larr; Semana anterior</button>
         <span class="week-label" id="weekLabel"></span>
-        <button onclick="changeWeek(1)">Proxima semana &rarr;</button>
+        <button onclick="changeWeek(1)">Próxima semana &rarr;</button>
         <button onclick="goToToday()" class="btn btn-sm btn-outline">Hoje</button>
       </div>
 
@@ -1170,7 +1170,7 @@
 
       <!-- Contact -->
       <div style="text-align: center; padding: 1.5rem; background: var(--white); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 2rem;">
-        <p style="font-weight: 600; margin-bottom: 0.5rem;">Nao encontrou horario disponivel?</p>
+        <p style="font-weight: 600; margin-bottom: 0.5rem;">Não encontrou horário disponível?</p>
         <p style="color: var(--text-light); margin-bottom: 1rem; font-size: 0.9rem;">Entre em contato conosco para solicitar um agendamento alternativo.</p>
         <button class="btn btn-success" onclick="abrirEmail()">✉️ Solicitar por E-mail</button>
         <p style="font-size: 0.78rem; color: var(--text-light); margin-top: 0.6rem;">
@@ -1224,7 +1224,7 @@
           </div>
           <button class="btn btn-success" style="width:100%; margin-top: 0.5rem;" onclick="professionalLogin()">Entrar</button>
           <div style="text-align:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border);">
-            <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:0.5rem;">Ainda nao tem acesso?</p>
+            <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:0.5rem;">Ainda não tem acesso?</p>
             <button class="btn btn-outline" style="width:100%;" onclick="showSelfRegister()">Quero me cadastrar</button>
           </div>
         </div>
@@ -1307,9 +1307,9 @@
 
       <!-- Tabs -->
       <div class="dashboard-tabs">
-        <button class="dashboard-tab active" onclick="switchDashTab('slots', this)">Meus Horarios</button>
+        <button class="dashboard-tab active" onclick="switchDashTab('slots', this)">Meus Horários</button>
         <button class="dashboard-tab" onclick="switchDashTab('bookings', this)">Agendamentos <span class="badge" id="bookingsBadge" style="display:none;">0</span></button>
-        <button class="dashboard-tab" onclick="switchDashTab('history', this)">Historico</button>
+        <button class="dashboard-tab" onclick="switchDashTab('history', this)">Histórico</button>
         <button class="dashboard-tab" onclick="switchDashTab('cases', this)">Meus Casos</button>
       </div>
 
@@ -1354,7 +1354,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Semanas a frente</label>
+                <label>Semanas à frente</label>
                 <select class="form-input" id="recurWeeks">
                   <option value="4">4 semanas</option>
                   <option value="8" selected>8 semanas</option>
@@ -1365,12 +1365,13 @@
             <div style="padding: 0 1rem;">
               <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.3rem;">Dias da semana:</label>
               <div class="recurring-options" id="recurDays">
-                <div class="recurring-day" data-day="1" onclick="toggleRecurDay(this)">S</div>
-                <div class="recurring-day" data-day="2" onclick="toggleRecurDay(this)">T</div>
-                <div class="recurring-day" data-day="3" onclick="toggleRecurDay(this)">Q</div>
-                <div class="recurring-day" data-day="4" onclick="toggleRecurDay(this)">Q</div>
-                <div class="recurring-day" data-day="5" onclick="toggleRecurDay(this)">S</div>
-                <div class="recurring-day" data-day="6" onclick="toggleRecurDay(this)">S</div>
+                <div class="recurring-day" data-day="1" onclick="toggleRecurDay(this)" title="Segunda-feira">Seg</div>
+                <div class="recurring-day" data-day="2" onclick="toggleRecurDay(this)" title="Terça-feira">Ter</div>
+                <div class="recurring-day" data-day="3" onclick="toggleRecurDay(this)" title="Quarta-feira">Qua</div>
+                <div class="recurring-day" data-day="4" onclick="toggleRecurDay(this)" title="Quinta-feira">Qui</div>
+                <div class="recurring-day" data-day="5" onclick="toggleRecurDay(this)" title="Sexta-feira">Sex</div>
+                <div class="recurring-day" data-day="6" onclick="toggleRecurDay(this)" title="Sábado">Sáb</div>
+                <div class="recurring-day" data-day="0" onclick="toggleRecurDay(this)" title="Domingo">Dom</div>
               </div>
               <button class="btn btn-accent btn-sm" style="margin-top: 0.8rem;" onclick="addRecurringSlots()">Criar horarios recorrentes</button>
             </div>
@@ -1378,7 +1379,7 @@
         </div>
 
         <div class="slot-manager">
-          <h3>Meus Horarios Cadastrados</h3>
+          <h3>Meus Horários Cadastrados</h3>
           <div id="slotsTableContainer"></div>
         </div>
       </div>
@@ -1454,9 +1455,9 @@
       <div class="dashboard-tabs">
         <button class="dashboard-tab active" onclick="switchAdminTab('profs', this)">Profissionais</button>
         <button class="dashboard-tab" onclick="switchAdminTab('all-bookings', this)">Todos os Agendamentos</button>
-        <button class="dashboard-tab" onclick="switchAdminTab('all-slots', this)">Todos os Horarios</button>
-        <button class="dashboard-tab" onclick="switchAdminTab('coordination', this)">Coordenacao</button>
-        <button class="dashboard-tab" onclick="switchAdminTab('missoes', this)">Missoes</button>
+        <button class="dashboard-tab" onclick="switchAdminTab('all-slots', this)">Todos os Horários</button>
+        <button class="dashboard-tab" onclick="switchAdminTab('coordination', this)">Coordenação</button>
+        <button class="dashboard-tab" onclick="switchAdminTab('missoes', this)">Missões</button>
         <button class="dashboard-tab" onclick="switchAdminTab('admins', this)" id="adminTabAdmins" style="display:none;">Administradores</button>
         <button class="dashboard-tab" onclick="switchAdminTab('backup', this)">🗄️ Backup</button>
       </div>
@@ -1497,7 +1498,20 @@
       <!-- Tab: All Bookings -->
       <div id="admin-tab-all-bookings" class="tab-panel">
         <div class="slot-manager">
-          <h3>Todos os Agendamentos</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+            <h3 style="margin:0;">Todos os Agendamentos</h3>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+              <select id="filterBookingStatus" class="form-input" style="width:auto; padding:0.4rem 0.8rem; font-size:0.85rem;" onchange="renderAdminBookings()">
+                <option value="">Todos os status</option>
+                <option value="confirmed">Confirmados</option>
+                <option value="completed">Realizados</option>
+                <option value="cancelled">Cancelados</option>
+              </select>
+              <select id="filterBookingProf" class="form-input" style="width:auto; padding:0.4rem 0.8rem; font-size:0.85rem;" onchange="renderAdminBookings()">
+                <option value="">Todos os profissionais</option>
+              </select>
+            </div>
+          </div>
           <div id="adminBookingsContainer"></div>
         </div>
       </div>
@@ -1613,7 +1627,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>Senha de acesso <span class="required">*</span></label>
-            <input type="text" class="form-input" id="profPassword" placeholder="Senha para login do profissional">
+            <input type="password" class="form-input" id="profPassword" placeholder="Senha para login do profissional" autocomplete="new-password">
           </div>
           <div class="form-group">
             <label>CRP / CRM</label>
@@ -1660,7 +1674,7 @@
         </div>
         <div class="form-group">
           <label>Senha <span class="required">*</span></label>
-          <input type="text" class="form-input" id="adminUserPassword" placeholder="Senha de acesso">
+          <input type="password" class="form-input" id="adminUserPassword" placeholder="Senha de acesso" autocomplete="new-password">
         </div>
       </div>
       <div class="modal-footer">
@@ -1890,7 +1904,7 @@
         </div>
 
         <div style="height:1px; background:#e2e8f0; margin:2rem 0;"></div>
-        <p id="termoFimTexto" style="text-align:center; font-size:0.85rem; color:var(--text-light);">↑ Role até aqui para habilitar os botões abaixo.</p>
+        <p id="termoFimTexto" style="text-align:center; font-size:0.85rem; color:var(--text-light);">↓ Continue rolando até o final para habilitar os botões.</p>
       </div>
 
       <!-- Rodape com botoes -->
@@ -1937,13 +1951,13 @@
 
         <div class="form-section-title">Escolha o horario do retorno</div>
         <div class="form-group">
-          <label>Selecione um dos seus horarios disponiveis <span class="required">*</span></label>
+          <label>Selecione um dos seus horários disponíveis <span class="required">*</span></label>
           <select class="form-input" id="returnSlotSelect">
             <option value="">-- Carregando horarios --</option>
           </select>
         </div>
         <p style="font-size: 0.8rem; color: var(--text-light); margin-top: -0.5rem;">
-          So aparecem horarios futuros que ainda nao estao ocupados. Se nao tem horario, crie um na aba "Meus Horarios" primeiro.
+          Só aparecem horários futuros que ainda não estão ocupados. Se não tem horário, crie um na aba "Meus Horários" primeiro.
         </p>
       </div>
       <div class="modal-footer">
@@ -1970,7 +1984,7 @@
           <label>O que voce recomenda como proximo passo? <span class="required">*</span></label>
           <select class="form-input" id="completeNextStep" onchange="onNextStepChange()">
             <option value="">-- Selecione --</option>
-            <option value="return">Agendar sessao de retorno (ainda ha sessoes restantes)</option>
+            <option value="return">Agendar sessão de retorno (ainda há sessões restantes)</option>
             <option value="resolved">Caso resolvido no plantao (Via A) - nao precisa de encaminhamento</option>
             <option value="therapy">Encaminhamento para psicoterapia (Via B)</option>
             <option value="psychiatry">Encaminhamento para psiquiatria (Via C)</option>
@@ -2001,7 +2015,7 @@
           <div class="form-section-title">Formulario Pos-Plantao</div>
 
           <div class="form-group">
-            <label>Via clinica</label>
+            <label>Via clínica</label>
             <select class="form-input" id="ppViaClinica" disabled>
               <option value="">--</option>
               <option value="A">Via A - Resolvido no plantao</option>
@@ -2516,7 +2530,7 @@
         });
 
         html += `<div class="${classes}" data-day-name="${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}">`;
-        html += `<div class="day-number">${isToday ? `<div class="today .day-number">${d.getDate()}</div>` : d.getDate()}</div>`;
+        html += `<div class="day-number">${isToday ? `<div class="today">${d.getDate()}</div>` : d.getDate()}</div>`;
 
         const maxVisible = 4;
         const availableSlots = daySlots.filter(s => !s.isBooked);
@@ -2578,7 +2592,12 @@
     }
 
     function changeWeek(direction) {
-      currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
+      const next = new Date(currentWeekStart);
+      next.setDate(next.getDate() + (direction * 7));
+      // Não permite navegar para antes da semana atual
+      const thisMonday = getMonday(new Date());
+      if (next < thisMonday) return;
+      currentWeekStart = next;
       renderCalendar();
     }
 
@@ -2608,7 +2627,7 @@
 
     function getDayNameFull(dateStr) {
       dateStr = normalizeDate(dateStr);
-      const days = ['Domingo', 'Segunda-feira', 'Terca-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sabado'];
+      const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
       const d = new Date(dateStr + 'T12:00:00');
       return days[d.getDay()];
     }
@@ -2691,7 +2710,13 @@
       const reason = document.getElementById('bkReason').value.trim();
 
       if (!name || !email || !phone || !type || !casaId || !city || !reason) {
-        showToast('Por favor, preencha todos os campos obrigatorios (*).', 'error');
+        showToast('Por favor, preencha todos os campos obrigatórios (*).', 'error');
+        return;
+      }
+
+      // Validação de e-mail
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Digite um e-mail válido.', 'error');
         return;
       }
 
@@ -2738,23 +2763,25 @@
       setData(STORAGE_KEYS.bookings, bookings);
       syncToApi('Agendamentos', bookings);
 
+      // Guarda referência antes de fechar modal (closeBookingModal zera selectedSlotForBooking)
+      const confirmedSlot = { ...selectedSlotForBooking };
       closeBookingModal();
 
       // Show confirmation
       const profs = getData(STORAGE_KEYS.professionals) || [];
-      const prof = profs.find(p => p.id === selectedSlotForBooking.profId);
+      const prof = profs.find(p => p.id === confirmedSlot.profId);
 
       document.getElementById('confirmationContent').innerHTML = `
         <div style="font-size: 3rem; margin: 1rem 0;">&#10003;</div>
         <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Seu agendamento foi confirmado!</p>
         <div style="text-align: left; background: var(--light-bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
           <p><strong>Profissional:</strong> ${prof ? prof.name : '?'}</p>
-          <p><strong>Data:</strong> ${getDayNameFull(selectedSlotForBooking.date)}, ${formatDateBR(selectedSlotForBooking.date)}</p>
-          <p><strong>Horario:</strong> ${selectedSlotForBooking.time}</p>
-          <p><strong>Duracao:</strong> ${selectedSlotForBooking.duration} min</p>
+          <p><strong>Data:</strong> ${getDayNameFull(confirmedSlot.date)}, ${formatDateBR(confirmedSlot.date)}</p>
+          <p><strong>Horário:</strong> ${confirmedSlot.time}</p>
+          <p><strong>Duração:</strong> ${confirmedSlot.duration} min</p>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-light);">O profissional sera notificado e entrara em contato caso necessario. Guarde estas informacoes.</p>
-        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;"><strong>E-mail de contato da Comissao:</strong> comissaosm@comshalom.org</p>
+        <p style="font-size: 0.85rem; color: var(--text-light);">✅ Um e-mail de confirmação foi enviado para <strong>${email}</strong>. Guarde estas informações.</p>
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;"><strong>Dúvidas?</strong> Entre em contato: <strong>comissaosm@comshalom.org</strong></p>
       `;
 
       document.getElementById('confirmationModal').classList.add('show');
@@ -2922,7 +2949,7 @@
       if (prof) {
         // Verifica se o cadastro foi aprovado
         if (prof.status === 'pendente') {
-          errorDiv.textContent = 'Seu cadastro ainda esta aguardando aprovacao pela coordenacao. Voce recebera um e-mail quando for aprovado.';
+          errorDiv.textContent = 'Seu cadastro ainda está aguardando aprovação pela coordenação. Você receberá um e-mail quando for aprovado.';
           errorDiv.style.display = 'block';
           errorDiv.style.background = '#fef3c7';
           errorDiv.style.border = '1px solid #f59e0b';
@@ -2945,6 +2972,12 @@
           showToast(`Bem-vindo(a), ${prof.name}!`, 'success');
         }
       } else {
+        // Reset estilos que podem ter ficado do estado de "pendente" ou "termo recusado"
+        errorDiv.style.background = '';
+        errorDiv.style.border = '';
+        errorDiv.style.color = '';
+        errorDiv.style.padding = '';
+        errorDiv.style.borderRadius = '';
         errorDiv.textContent = 'Senha incorreta. Tente novamente.';
         errorDiv.style.display = 'block';
         document.getElementById('loginPassword').value = '';
@@ -2998,7 +3031,7 @@
       syncToApi('Profissionais', updated);
 
       document.getElementById('termoModal').style.display = 'none';
-      showView('dashboard');
+      showView('professional');
       renderDashboard();
       showToast(`Bem-vindo(a), ${loggedProfessional.name}! Termo aceito com sucesso.`, 'success');
     }
@@ -3187,7 +3220,7 @@
       const selectedDays = [...document.querySelectorAll('#recurDays .recurring-day.selected')].map(el => parseInt(el.dataset.day));
 
       if (!time || selectedDays.length === 0) {
-        showToast('Selecione o horario e pelo menos um dia da semana.', 'error');
+        showToast('Selecione o horário e pelo menos um dia da semana.', 'error');
         return;
       }
 
@@ -3196,16 +3229,20 @@
       today.setHours(0, 0, 0, 0);
       let count = 0;
 
+      // Calcula a próxima ocorrência de cada dia a partir de hoje
+      // getDay(): 0=Dom,1=Seg,...,6=Sab — data-day usa o mesmo padrão
+      const baseOffsets = {};
+      for (const dayOfWeek of selectedDays) {
+        const currentDay = today.getDay(); // 0–6
+        let diff = dayOfWeek - currentDay;
+        if (diff < 0) diff += 7; // dia já passou nessa semana → próxima semana
+        baseOffsets[dayOfWeek] = diff;
+      }
+
       for (let w = 0; w < weeks; w++) {
         for (const dayOfWeek of selectedDays) {
           const d = new Date(today);
-          // Find next occurrence of this day of week
-          const currentDay = d.getDay() === 0 ? 7 : d.getDay();
-          let daysToAdd = dayOfWeek - currentDay;
-          if (daysToAdd < 0) daysToAdd += 7;
-          daysToAdd += w * 7;
-          if (daysToAdd < 1 && w === 0) daysToAdd += 7;
-
+          const daysToAdd = baseOffsets[dayOfWeek] + (w * 7);
           d.setDate(d.getDate() + daysToAdd);
           const dateStr = formatDate(d);
 
@@ -3278,7 +3315,7 @@
         document.getElementById('slotsTableContainer').innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">&#128197;</div>
-            <p>Voce ainda nao cadastrou horarios disponiveis.</p>
+            <p>Você ainda não cadastrou horários disponíveis.</p>
             <p style="font-size: 0.85rem; color: var(--text-light);">Use o formulario acima para adicionar seus horarios de atendimento.</p>
           </div>`;
         return;
@@ -3406,7 +3443,7 @@
         <h3>Resumo da Sessao</h3>
         <div class="booking-detail"><span>Paciente:</span><span>${booking.patientName}</span></div>
         <div class="booking-detail"><span>Data:</span><span>${slot ? formatDateBR(slot.date) + ' as ' + slot.time : '?'}</span></div>
-        <div class="booking-detail"><span>Sessao n:</span><span>${sessionNum} de 4</span></div>
+        <div class="booking-detail"><span>Sessão nº:</span><span>${sessionNum} de 4</span></div>
         <div class="booking-detail"><span>Tipo:</span><span>${booking.type === 'missionario' ? 'Missionario' : 'Agente Formativo'}</span></div>
       `;
 
@@ -3513,7 +3550,7 @@
     function confirmComplete() {
       const step = document.getElementById('completeNextStep').value;
       if (!step) {
-        showToast('Selecione o proximo passo para o paciente.', 'error');
+        showToast('Selecione o próximo passo para o paciente.', 'error');
         return;
       }
 
@@ -3556,16 +3593,19 @@
       });
 
       setData(STORAGE_KEYS.bookings, updated);
+
+      // Guarda ID antes de fechar modal (closeCompleteModal zera completingBookingId)
+      const finishedBookingId = completingBookingId;
       closeCompleteModal();
 
       // If return, open return modal right away
       if (step === 'return') {
-        showToast('Sessao concluida! Agora escolha o horario do retorno.', 'success');
-        setTimeout(() => openReturnModal(completingBookingId), 500);
+        showToast('Sessão concluída! Agora escolha o horário do retorno.', 'success');
+        setTimeout(() => openReturnModal(finishedBookingId), 500);
       } else {
-        showToast('Sessao concluida! Proximo passo: ' + getNextStepLabel(step), 'success');
+        showToast('Sessão concluída! Próximo passo: ' + getNextStepLabel(step), 'success');
 
-        const booking = updated.find(b => b.id === completingBookingId);
+        const booking = updated.find(b => b.id === finishedBookingId);
 
         // Envia e-mail de encaminhamento para FC e Secretaria (Via B/C)
         if (step === 'therapy' || step === 'psychiatry' || step === 'urgency') {
@@ -3645,8 +3685,15 @@
         (b.status === 'completed' || b.status === 'confirmed')
       );
 
+      // Limite de 4 sessões
+      const completedCount = patientSessions.filter(s => s.status === 'completed').length;
+      if (completedCount >= 4) {
+        showToast(`${booking.patientName} já atingiu o limite de 4 sessões neste plantão.`, 'error');
+        return;
+      }
+
       document.getElementById('returnModalSubtitle').textContent =
-        `Retorno para ${booking.patientName} (sessao ${patientSessions.length + 1} de 4)`;
+        `Retorno para ${booking.patientName} (sessão ${patientSessions.length + 1} de 4)`;
 
       document.getElementById('returnPatientInfo').innerHTML = `
         <h3>Dados do Paciente</h3>
@@ -4456,7 +4503,7 @@
         localStorage.setItem('plantao_admins', JSON.stringify(admins));
         syncToApi('Admins', admins);
       }
-      console.log('[DEBUG] getAdminUsers:', admins.map(a => a.id + '/' + a.name + '/pass=' + (a.password ? 'OK' : 'VAZIO')));
+      console.log('[DEBUG] getAdminUsers:', admins.length, 'admins carregados.');
       return admins;
     }
 
@@ -4493,7 +4540,7 @@
         showToast(`Bem-vindo(a), ${admin.name}!`, 'success');
       } else {
         const found = admins.find(a => a.id === adminId);
-        console.warn('[LOGIN ADM] Falha. Admin encontrado:', found ? 'sim' : 'nao', 'Password no sistema:', found ? found.password : 'N/A', 'Password digitada:', pass);
+        console.warn('[LOGIN ADM] Falha de autenticacao para:', found ? found.name : 'usuário não encontrado');
         errorDiv.textContent = 'Senha incorreta. Tente novamente.';
         errorDiv.style.display = 'block';
         document.getElementById('adminPassword').value = '';
@@ -4526,11 +4573,11 @@
       // Welcome header
       const roleLabel = loggedAdmin.role === 'super_admin' ? 'Super Administrador' : 'Administrador';
       document.getElementById('adminWelcome').textContent = `Ola, ${loggedAdmin.name}!`;
-      document.getElementById('adminRole').textContent = `${roleLabel} | Gerencie profissionais, horarios e agendamentos`;
+      document.getElementById('adminRole').textContent = `${roleLabel} | Gerencie profissionais, horários e agendamentos`;
 
       // Show admins tab only for super_admin
       const adminsTab = document.getElementById('adminTabAdmins');
-      adminsTab.style.display = loggedAdmin.role === 'super_admin' ? '' : 'none';
+      adminsTab.style.display = loggedAdmin.role === 'super_admin' ? 'inline-block' : 'none';
 
       // Se admin (nao super) esta na aba admins, volta para profs
       if (loggedAdmin.role !== 'super_admin') {
@@ -4638,7 +4685,7 @@
     }
 
     function rejectProf(profId) {
-      if (!confirm('Tem certeza que deseja recusar este cadastro? O profissional será removido.')) return;
+      if (!confirm('Tem certeza que deseja recusar este cadastro? O profissional será removido e notificado.')) return;
 
       const profs = getData(STORAGE_KEYS.professionals) || [];
       const prof = profs.find(p => p.id === profId);
@@ -4646,7 +4693,15 @@
       setData(STORAGE_KEYS.professionals, updated);
       syncToApi('Profissionais', updated);
 
-      showToast('Cadastro recusado.', 'info');
+      // Notifica o profissional sobre a recusa
+      if (prof) {
+        sendEmailNotification('notifyRegistrationRejected', {
+          profName: prof.name,
+          profEmail: prof.email
+        });
+      }
+
+      showToast('Cadastro recusado. Profissional notificado por e-mail.', 'info');
       renderAdminDashboard();
     }
 
@@ -4667,7 +4722,7 @@
         return;
       }
 
-      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Nome</th><th>Especialidade</th><th>E-mail</th><th>Telefone</th><th>CRP/CRM</th><th>Horarios</th><th>Agend.</th><th>Termo</th><th>Senha</th><th>Acoes</th></tr></thead><tbody>';
+      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Nome</th><th>Especialidade</th><th>E-mail</th><th>Telefone</th><th>CRP/CRM</th><th>Horários</th><th>Agend. Ativos</th><th>Termo Aceito?</th><th>Ações</th></tr></thead><tbody>';
 
       for (const p of profs) {
         const profSlots = slots.filter(s => s.profId === p.id && s.date >= today);
@@ -4685,7 +4740,6 @@
           <td><span class="status-tag available">${profSlots.length}</span></td>
           <td><span class="status-tag ${profBookings.length > 0 ? 'booked' : 'completed'}">${profBookings.length}</span></td>
           <td>${termoTag}</td>
-          <td style="font-size: 0.8rem; font-family: monospace;">${p.password}</td>
           <td>
             <button class="btn btn-sm btn-accent" onclick="editProfessional('${p.id}')">Editar</button>
             <button class="btn btn-sm btn-danger" onclick="deleteProfessional('${p.id}')">Excluir</button>
@@ -4771,7 +4825,9 @@
           specialty: specialty,
           password: password,
           registry: document.getElementById('profRegistry').value.trim(),
-          notes: document.getElementById('profNotes').value.trim()
+          notes: document.getElementById('profNotes').value.trim(),
+          status: 'ativo',
+          cadastradoEm: new Date().toISOString()
         };
         profs.push(newProf);
         showToast(`Profissional "${name}" cadastrado!`, 'success');
@@ -4829,23 +4885,50 @@
       const slots = getData(STORAGE_KEYS.slots) || [];
       const profs = getData(STORAGE_KEYS.professionals) || [];
 
-      const sorted = [...bookings].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // Popula filtro de profissionais
+      const profSelect = document.getElementById('filterBookingProf');
+      if (profSelect) {
+        const currentProf = profSelect.value;
+        profSelect.innerHTML = '<option value="">Todos os profissionais</option>';
+        profs.forEach(p => {
+          profSelect.innerHTML += `<option value="${p.id}" ${currentProf === p.id ? 'selected' : ''}>${p.name}</option>`;
+        });
+      }
 
-      if (sorted.length === 0) {
+      // Aplica filtros
+      const statusFilter = document.getElementById('filterBookingStatus')?.value || '';
+      const profFilter = document.getElementById('filterBookingProf')?.value || '';
+
+      let filtered = [...bookings];
+      if (statusFilter) filtered = filtered.filter(b => b.status === statusFilter);
+      if (profFilter) filtered = filtered.filter(b => b.profId === profFilter);
+
+      // Ordena por data da consulta (slot.date), não por createdAt
+      filtered.sort((a, b) => {
+        const slotA = slots.find(s => s.id === a.slotId);
+        const slotB = slots.find(s => s.id === b.slotId);
+        const dateA = slotA ? slotA.date + (slotA.time || '') : a.createdAt;
+        const dateB = slotB ? slotB.date + (slotB.time || '') : b.createdAt;
+        return dateB.localeCompare(dateA); // mais recente primeiro
+      });
+
+      if (filtered.length === 0) {
         document.getElementById('adminBookingsContainer').innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">&#128203;</div>
-            <p>Nenhum agendamento registrado.</p>
+            <p>Nenhum agendamento encontrado para os filtros selecionados.</p>
           </div>`;
         return;
       }
 
-      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Paciente</th><th>Profissional</th><th>Data</th><th>Horario</th><th>Tipo</th><th>Status</th><th>Acoes</th></tr></thead><tbody>';
+      const statusMap = { confirmed: 'Confirmado', completed: 'Realizado', cancelled: 'Cancelado' };
 
-      for (const b of sorted) {
+      let html = `<p style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.5rem;">${filtered.length} agendamento(s) encontrado(s)</p>`;
+      html += '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Paciente</th><th>Profissional</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+
+      for (const b of filtered) {
         const slot = slots.find(s => s.id === b.slotId);
         const prof = profs.find(p => p.id === b.profId);
-        const statusMap = { confirmed: 'Confirmado', completed: 'Realizado', cancelled: 'Cancelado' };
         const statusClass = b.status === 'confirmed' ? 'booked' : b.status;
 
         html += `<tr>
@@ -4853,9 +4936,9 @@
           <td>${prof ? prof.name : '?'}</td>
           <td>${slot ? formatDateBR(slot.date) : '?'}</td>
           <td>${slot ? slot.time : '?'}</td>
-          <td>${b.type === 'missionario' ? 'Missionario' : 'Formativo'}</td>
+          <td>${b.type === 'missionario' ? 'Missionário' : 'Agente Formativo'}</td>
           <td><span class="status-tag ${statusClass}">${statusMap[b.status] || b.status}</span></td>
-          <td><button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${b.id}')">Anamnese</button></td>
+          <td><button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${b.id}')">Ver Anamnese</button></td>
         </tr>`;
       }
 
@@ -4915,7 +4998,7 @@
       }
       const grouped = {};
       missoes.forEach(m => { if (!grouped[m.missao]) grouped[m.missao] = []; grouped[m.missao].push(m); });
-      let html = '<table class="data-table"><thead><tr><th>Missao</th><th>Casa Comunitaria</th><th>E-mail FC</th><th>E-mail Secretaria</th><th>Acoes</th></tr></thead><tbody>';
+      let html = '<div style="overflow-x:auto;"><table class="slots-table"><thead><tr><th>Missão</th><th>Casa Comunitária</th><th>E-mail FC</th><th>E-mail Secretária</th><th>Ações</th></tr></thead><tbody>';
       Object.keys(grouped).sort().forEach(missao => {
         grouped[missao].forEach(m => {
           html += `<tr><td>${missao}</td><td>${m.casa}</td><td>${m.fcEmail || '-'}</td><td>${m.secretariaEmail || '-'}</td><td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="editMissao('${m.id}')">Editar</button> <button class="btn" style="padding:0.3rem 0.6rem;font-size:0.75rem;background:var(--error);" onclick="deleteMissao('${m.id}')">Excluir</button></td></tr>`;
@@ -4966,12 +5049,19 @@
     }
 
     function deleteMissao(id) {
-      if (!confirm('Tem certeza que deseja excluir esta casa comunitaria?')) return;
+      // Verifica se há agendamentos referenciando esta casa
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const emUso = bookings.some(b => b.casaId === id && b.status !== 'cancelled');
+      if (emUso) {
+        showToast('Não é possível excluir: há agendamentos ativos vinculados a esta casa.', 'error');
+        return;
+      }
+      if (!confirm('Tem certeza que deseja excluir esta casa comunitária?')) return;
       const missoes = (getData(STORAGE_KEYS.missoes) || []).filter(m => m.id !== id);
       setData(STORAGE_KEYS.missoes, missoes);
       syncToApi('Missoes', missoes);
       renderMissoesTable();
-      showToast('Casa excluida.', 'success');
+      showToast('Casa excluída com sucesso.', 'success');
     }
 
     function showDynamicModal(title, bodyHtml, btnText, onConfirm) {
@@ -5001,7 +5091,7 @@
       const container = document.getElementById('adminsTableContainer');
       if (!container) return;
 
-      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Senha</th><th>Acoes</th></tr></thead><tbody>';
+      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ações</th></tr></thead><tbody>';
 
       for (const a of admins) {
         const roleLabel = a.role === 'super_admin' ? '<span class="status-tag booked">Super Admin</span>' : '<span class="status-tag available">Admin</span>';
@@ -5011,7 +5101,6 @@
           <td><strong>${a.name}</strong> ${isSelf ? '<span style="font-size:0.75rem; color: var(--accent);">(voce)</span>' : ''}</td>
           <td style="font-size: 0.85rem;">${a.email}</td>
           <td>${roleLabel}</td>
-          <td style="font-size: 0.8rem; font-family: monospace;">${a.password}</td>
           <td>
             <button class="btn btn-sm btn-accent" onclick="editAdminUser('${a.id}')">Editar</button>
             ${!isSelf ? `<button class="btn btn-sm btn-danger" onclick="deleteAdminUser('${a.id}')">Excluir</button>` : ''}
@@ -5065,10 +5154,26 @@
         return;
       }
 
+      if (password.length < 6) {
+        showToast('A senha deve ter pelo menos 6 caracteres.', 'error');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Digite um e-mail válido.', 'error');
+        return;
+      }
+
       const admins = getAdminUsers();
       const editId = document.getElementById('editAdminId').value;
 
       if (editId) {
+        // Impede super_admin de se auto-rebaixar
+        if (loggedAdmin && loggedAdmin.id === editId && loggedAdmin.role === 'super_admin' && role !== 'super_admin') {
+          showToast('Você não pode alterar seu próprio perfil de Super Administrador.', 'error');
+          return;
+        }
+
         const idx = admins.findIndex(a => a.id === editId);
         if (idx !== -1) {
           admins[idx].name = name;
@@ -5101,7 +5206,7 @@
 
     function deleteAdminUser(adminId) {
       if (loggedAdmin && loggedAdmin.id === adminId) {
-        showToast('Voce nao pode excluir seu proprio perfil.', 'error');
+        showToast('Você não pode excluir seu próprio perfil.', 'error');
         return;
       }
 
