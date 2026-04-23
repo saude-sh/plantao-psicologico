@@ -1458,6 +1458,7 @@
         <button class="dashboard-tab" onclick="switchAdminTab('coordination', this)">Coordenacao</button>
         <button class="dashboard-tab" onclick="switchAdminTab('missoes', this)">Missoes</button>
         <button class="dashboard-tab" onclick="switchAdminTab('admins', this)" id="adminTabAdmins" style="display:none;">Administradores</button>
+        <button class="dashboard-tab" onclick="switchAdminTab('backup', this)">🗄️ Backup</button>
       </div>
 
       <!-- Tab: Missoes -->
@@ -1506,6 +1507,42 @@
         <div class="slot-manager">
           <h3>Todos os Horarios</h3>
           <div id="adminSlotsContainer"></div>
+        </div>
+      </div>
+
+      <!-- Tab: Backup -->
+      <div id="admin-tab-backup" class="tab-panel">
+        <div class="slot-manager">
+          <h3>🗄️ Backup e Restauracao de Dados</h3>
+          <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:1.5rem;">Use esta aba para exportar todos os dados locais (profissionais, horarios, agendamentos) ou reenviar dados para o servidor.</p>
+
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1.2rem;">
+              <h4 style="margin:0 0 0.5rem 0;color:#166534;">📥 Exportar Backup Local</h4>
+              <p style="font-size:0.85rem;color:#166534;margin-bottom:0.8rem;">Baixa um arquivo JSON com todos os dados salvos localmente neste dispositivo.</p>
+              <button class="btn btn-success" onclick="exportarBackup()">⬇️ Baixar Backup (.json)</button>
+            </div>
+
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:1.2rem;">
+              <h4 style="margin:0 0 0.5rem 0;color:#1e40af;">🔄 Reenviar Dados para o Servidor</h4>
+              <p style="font-size:0.85rem;color:#1e40af;margin-bottom:0.8rem;">Força o envio de todos os dados locais para o Google Sheets (util quando houve erro de sincronizacao).</p>
+              <button class="btn" style="background:#3b82f6;color:#fff;" onclick="forcarSyncTotal()">🔄 Reenviar Tudo para o Sheets</button>
+            </div>
+
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:1.2rem;">
+              <h4 style="margin:0 0 0.5rem 0;color:#9a3412;">📤 Restaurar Backup</h4>
+              <p style="font-size:0.85rem;color:#9a3412;margin-bottom:0.8rem;">Restaura dados a partir de um arquivo de backup baixado anteriormente. <strong>Atenção: substitui os dados atuais.</strong></p>
+              <input type="file" id="backupFileInput" accept=".json" style="display:none;" onchange="restaurarBackup(this)">
+              <button class="btn" style="background:#ea580c;color:#fff;" onclick="document.getElementById('backupFileInput').click()">📂 Selecionar Arquivo de Backup</button>
+            </div>
+
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1.2rem;">
+              <h4 style="margin:0 0 0.8rem 0;">📊 Status dos Dados Locais</h4>
+              <div id="backupStatusDiv"></div>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -2183,7 +2220,23 @@
             // Nao sobrescreve missoes locais com vazio
             if (sheet === 'Missoes' && processedData.length === 0) continue;
 
-            localStorage.setItem(storageMap[sheet], JSON.stringify(processedData));
+            // PROTECAO: nao sobrescreve local com menos registros (evita perda de dados)
+            const localKey = storageMap[sheet];
+            const localData = JSON.parse(localStorage.getItem(localKey) || '[]');
+            if (Array.isArray(localData) && localData.length > processedData.length && processedData.length === 0) {
+              console.warn('[API] ' + sheet + ': Sheets vazio mas local tem ' + localData.length + ' registros. Enviando local para Sheets.');
+              syncToApi(sheet, localData);
+              successCount++;
+              continue;
+            }
+            if (Array.isArray(localData) && localData.length > processedData.length + 2) {
+              console.warn('[API] ' + sheet + ': Sheets tem ' + processedData.length + ' mas local tem ' + localData.length + '. Mantendo local e enviando para Sheets.');
+              syncToApi(sheet, localData);
+              successCount++;
+              continue;
+            }
+
+            localStorage.setItem(localKey, JSON.stringify(processedData));
             successCount++;
           }
         } catch (err) {
@@ -4218,6 +4271,119 @@
     // =============================================
     // TOAST NOTIFICATIONS
     // =============================================
+    // =============================================
+    // BACKUP E RESTAURACAO
+    // =============================================
+    function exportarBackup() {
+      const backup = {
+        exportadoEm: new Date().toISOString(),
+        versao: '1.0',
+        profissionais: getData(STORAGE_KEYS.professionals) || [],
+        slots: getData(STORAGE_KEYS.slots) || [],
+        agendamentos: getData(STORAGE_KEYS.bookings) || [],
+        admins: getData('plantao_admins') || [],
+        missoes: getData(STORAGE_KEYS.missoes) || []
+      };
+
+      const json = JSON.stringify(backup, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dataStr = new Date().toISOString().slice(0,10);
+      a.href = url;
+      a.download = `plantao-backup-${dataStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Backup exportado com sucesso!', 'success');
+    }
+
+    function restaurarBackup(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const backup = JSON.parse(e.target.result);
+
+          if (!backup.profissionais && !backup.admins) {
+            showToast('Arquivo invalido: nao parece um backup do sistema.', 'error');
+            return;
+          }
+
+          const profs = backup.profissionais || [];
+          const slots = backup.slots || [];
+          const bookings = backup.agendamentos || [];
+          const admins = backup.admins || [];
+          const missoes = backup.missoes || [];
+
+          if (!confirm(`Restaurar backup de ${backup.exportadoEm ? new Date(backup.exportadoEm).toLocaleString('pt-BR') : 'data desconhecida'}?\n\n• ${profs.length} profissionais\n• ${slots.length} horarios\n• ${bookings.length} agendamentos\n• ${admins.length} administradores\n\nOs dados atuais serao substituidos.`)) return;
+
+          if (profs.length > 0) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(profs));
+          if (slots.length > 0) localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
+          if (bookings.length > 0) localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify(bookings));
+          if (admins.length > 0) localStorage.setItem('plantao_admins', JSON.stringify(admins));
+          if (missoes.length > 0) localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(missoes));
+
+          showToast('Backup restaurado! Reenviando para o servidor...', 'success');
+
+          // Reenviar tudo para o Sheets
+          setTimeout(() => {
+            if (profs.length > 0) syncToApi('Profissionais', profs);
+            if (slots.length > 0) syncToApi('Slots', slots);
+            if (bookings.length > 0) syncToApi('Agendamentos', bookings);
+            if (admins.length > 0) syncToApi('Admins', admins);
+            if (missoes.length > 0) syncToApi('Missoes', missoes);
+            renderAdminDashboard();
+          }, 500);
+
+        } catch (err) {
+          showToast('Erro ao ler arquivo de backup: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+      input.value = '';
+    }
+
+    function forcarSyncTotal() {
+      if (!confirm('Reenviar todos os dados locais para o Google Sheets?\n\nIsso sobrescreve os dados no servidor com os dados deste dispositivo.')) return;
+
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const admins = getData('plantao_admins') || [];
+      const missoes = getData(STORAGE_KEYS.missoes) || [];
+
+      showToast('Reenviando dados...', 'info');
+
+      syncToApi('Profissionais', profs);
+      setTimeout(() => syncToApi('Slots', slots), 2500);
+      setTimeout(() => syncToApi('Agendamentos', bookings), 5000);
+      setTimeout(() => syncToApi('Admins', admins), 7500);
+      setTimeout(() => syncToApi('Missoes', missoes), 10000);
+      setTimeout(() => showToast(`Dados reenviados! ${profs.length} prof, ${slots.length} slots, ${bookings.length} agend.`, 'success'), 12000);
+    }
+
+    function renderBackupStatus() {
+      const div = document.getElementById('backupStatusDiv');
+      if (!div) return;
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const admins = getData('plantao_admins') || [];
+      div.innerHTML = `
+        <table style="width:100%;font-size:0.88rem;border-collapse:collapse;">
+          <tr><td style="padding:4px 8px;">👩‍⚕️ Profissionais</td><td style="padding:4px 8px;font-weight:600;">${profs.length}</td></tr>
+          <tr style="background:#f8fafc;"><td style="padding:4px 8px;">📅 Horários</td><td style="padding:4px 8px;font-weight:600;">${slots.length}</td></tr>
+          <tr><td style="padding:4px 8px;">📋 Agendamentos</td><td style="padding:4px 8px;font-weight:600;">${bookings.length}</td></tr>
+          <tr style="background:#f8fafc;"><td style="padding:4px 8px;">🔑 Administradores</td><td style="padding:4px 8px;font-weight:600;">${admins.length}</td></tr>
+        </table>
+        <p style="font-size:0.78rem;color:var(--text-light);margin-top:0.5rem;">Dados armazenados neste dispositivo (localStorage)</p>
+      `;
+    }
+
     function abrirEmail() {
       const email = 'comissaosm@comshalom.org';
       const subject = encodeURIComponent('Solicitação de Agendamento - Plantão Psicológico');
@@ -4345,6 +4511,7 @@
       document.querySelectorAll('#view-admin-dashboard .tab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('admin-tab-' + tabName).classList.add('active');
+      if (tabName === 'backup') renderBackupStatus();
     }
 
     function renderAdminDashboard() {
