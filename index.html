@@ -2424,7 +2424,9 @@
 
       if (viewName === 'patient') {
         const consentAccepted = getData(STORAGE_KEYS.consent);
-        if (consentAccepted) {
+        // Aceita tanto o formato antigo (boolean true) quanto o novo ({accepted, acceptedAt, version})
+        const isAccepted = consentAccepted === true || (consentAccepted && consentAccepted.accepted === true);
+        if (isAccepted) {
           document.getElementById('view-patient').classList.add('active');
           renderCalendar();
         } else {
@@ -2464,10 +2466,17 @@
       window.scrollTo(0, 0);
     }
 
+    // Versão do termo de consentimento exibido ao paciente. Bump quando o texto mudar.
+    const CONSENT_VERSION = 'v1.0';
+
     function acceptPatientConsent() {
-      setData(STORAGE_KEYS.consent, true);
+      setData(STORAGE_KEYS.consent, {
+        accepted: true,
+        acceptedAt: new Date().toISOString(),
+        version: CONSENT_VERSION
+      });
       showView('patient');
-      showToast('Termo aceito! Agora voce pode agendar seu atendimento.', 'success');
+      showToast('Termo aceito! Agora você pode agendar seu atendimento.', 'success');
     }
 
     // =============================================
@@ -2535,6 +2544,7 @@
         const maxVisible = 4;
         const availableSlots = daySlots.filter(s => !s.isBooked);
         const bookedSlots = daySlots.filter(s => s.isBooked);
+        const dateStrForDay = formatDate(d);
 
         // Show available first
         let shown = 0;
@@ -2543,24 +2553,24 @@
           const prof = profs.find(p => p.id === slot.profId);
           const profName = prof ? prof.name.replace('Profissional ', 'Prof. ') : '?';
           if (!isPast) {
-            html += `<div class="slot-chip available" onclick="openBookingModal('${slot.id}')" title="${profName} - ${slot.time} (${slot.duration}min)">${slot.time} ${profName}</div>`;
+            html += `<button type="button" class="slot-chip available" onclick="openBookingModal('${slot.id}')" title="${profName} - ${slot.time} (${slot.duration}min)" aria-label="Agendar com ${profName} às ${slot.time}">${slot.time} ${profName}</button>`;
           }
           shown++;
         }
 
         for (const slot of bookedSlots) {
           if (shown >= maxVisible) break;
-          html += `<div class="slot-chip booked" title="Horario ocupado">${slot.time} Ocupado</div>`;
+          html += `<div class="slot-chip booked" title="Horário ocupado">${slot.time} Ocupado</div>`;
           shown++;
         }
 
         if (daySlots.length > maxVisible) {
           const remaining = daySlots.length - maxVisible;
-          html += `<div class="more-slots" title="Ver todos">+${remaining} mais</div>`;
+          html += `<button type="button" class="more-slots" onclick="openDaySlotsModal('${dateStrForDay}')" title="Ver todos os horários deste dia" aria-label="Ver todos os ${daySlots.length} horários deste dia">+${remaining} mais</button>`;
         }
 
         if (daySlots.length === 0 && !isPast) {
-          html += `<div style="font-size:0.7rem; color: #94a3b8; padding: 0.3rem;">Sem horarios</div>`;
+          html += `<div style="font-size:0.7rem; color: #94a3b8; padding: 0.3rem;">Sem horários</div>`;
         }
 
         html += '</div>';
@@ -2630,6 +2640,13 @@
       const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
       const d = new Date(dateStr + 'T12:00:00');
       return days[d.getDay()];
+    }
+
+    // Converte "HH:MM" para total de minutos desde 00:00
+    function toMinutes(time) {
+      if (!time || typeof time !== 'string') return 0;
+      const [h, m] = time.split(':').map(n => parseInt(n) || 0);
+      return h * 60 + m;
     }
 
     // =============================================
@@ -2726,14 +2743,31 @@
       const bookings = getData(STORAGE_KEYS.bookings) || [];
       const existingBooking = bookings.find(b => b.slotId === selectedSlotForBooking.id && b.status !== 'cancelled');
       if (existingBooking) {
-        showToast('Este horario acabou de ser reservado por outra pessoa. Escolha outro.', 'error');
+        showToast('Este horário acabou de ser reservado por outra pessoa. Escolha outro.', 'error');
         closeBookingModal();
         renderCalendar();
         return;
       }
 
+      // Limite global: paciente não pode ter mais de 4 sessões ativas/realizadas no plantão,
+      // considerando todos os profissionais.
+      const emailLower = email.toLowerCase();
+      const patientSessions = bookings.filter(b =>
+        (b.patientEmail || '').toLowerCase() === emailLower &&
+        (b.status === 'completed' || b.status === 'confirmed')
+      );
+      if (patientSessions.length >= 4) {
+        showToast('Este e-mail já atingiu o limite de 4 sessões no Plantão. Entre em contato com a coordenação: comissaosm@comshalom.org', 'error');
+        return;
+      }
+
       const missoes = getData(STORAGE_KEYS.missoes) || [];
       const casaData = missoes.find(m => m.id === casaId);
+
+      // Registra o consentimento junto ao agendamento (trilha LGPD)
+      const consentData = getData(STORAGE_KEYS.consent);
+      const consentAcceptedAt = (consentData && consentData.acceptedAt) ? consentData.acceptedAt : new Date().toISOString();
+      const consentVersion = (consentData && consentData.version) ? consentData.version : (typeof CONSENT_VERSION !== 'undefined' ? CONSENT_VERSION : 'v1.0');
 
       const booking = {
         id: 'bk-' + Date.now(),
@@ -2748,6 +2782,8 @@
         casaComunidade: casaData ? casaData.casa : '',
         status: 'confirmed',
         createdAt: new Date().toISOString(),
+        consentAcceptedAt: consentAcceptedAt,
+        consentVersion: consentVersion,
         anamnesis: {
           city: city,
           timeCommunity: document.getElementById('bkTimeCommunity').value.trim(),
@@ -2777,11 +2813,15 @@
         <div style="text-align: left; background: var(--light-bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
           <p><strong>Profissional:</strong> ${prof ? prof.name : '?'}</p>
           <p><strong>Data:</strong> ${getDayNameFull(confirmedSlot.date)}, ${formatDateBR(confirmedSlot.date)}</p>
-          <p><strong>Horário:</strong> ${confirmedSlot.time}</p>
+          <p><strong>Horário:</strong> ${confirmedSlot.time} <span style="color:var(--text-light); font-size:0.85rem;">(horário de Brasília)</span></p>
           <p><strong>Duração:</strong> ${confirmedSlot.duration} min</p>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-light);">✅ Um e-mail de confirmação foi enviado para <strong>${email}</strong>. Guarde estas informações.</p>
-        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;"><strong>Dúvidas?</strong> Entre em contato: <strong>comissaosm@comshalom.org</strong></p>
+        <div style="text-align:left; background:#eff6ff; border-left:4px solid var(--primary); padding:0.8rem 1rem; border-radius:8px; margin-bottom:1rem; font-size:0.88rem; color:#1e40af;">
+          <p style="margin-bottom:0.3rem;"><strong>📌 Como será a sessão?</strong></p>
+          <p style="margin-bottom:0;">O profissional entrará em contato pelo telefone ou e-mail informado para confirmar a modalidade (online ou presencial) e, se for online, enviar o link da sessão.</p>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-light);">📧 Um e-mail com os detalhes será enviado para <strong>${email}</strong>. Se não chegar em alguns minutos, confira a caixa de spam e entre em contato pelo e-mail abaixo.</p>
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;"><strong>Precisa cancelar ou remarcar?</strong> Escreva para <strong>comissaosm@comshalom.org</strong> com pelo menos 24h de antecedência, informando seu nome, data e horário.</p>
       `;
 
       document.getElementById('confirmationModal').classList.add('show');
@@ -2875,7 +2915,22 @@
       const errorDiv = document.getElementById('registerError');
 
       if (!name || !email || !registry || !password) {
-        errorDiv.textContent = 'Preencha todos os campos obrigatorios.';
+        errorDiv.textContent = 'Preencha todos os campos obrigatórios.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      // Valida formato de e-mail
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        errorDiv.textContent = 'E-mail inválido. Verifique e tente novamente.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      // Valida formato do registro profissional (CRP: ex. "06/12345" / CRM: ex. "CRM-CE 12345")
+      // Aceita formatos comuns: dígitos, barras, hífens, letras e espaço. Mínimo 4 caracteres.
+      const registryClean = registry.replace(/\s+/g, ' ').trim();
+      if (registryClean.length < 4 || !/[0-9]/.test(registryClean)) {
+        errorDiv.textContent = 'Registro profissional inválido. Use o formato completo (ex.: CRP 06/12345).';
         errorDiv.style.display = 'block';
         return;
       }
@@ -2885,7 +2940,7 @@
         return;
       }
       if (password !== passwordConfirm) {
-        errorDiv.textContent = 'As senhas nao coincidem.';
+        errorDiv.textContent = 'As senhas não coincidem.';
         errorDiv.style.display = 'block';
         return;
       }
@@ -2959,6 +3014,30 @@
           document.getElementById('loginPassword').value = '';
           return;
         }
+        // Cadastro recusado — bloqueia acesso e orienta contato
+        if (prof.status === 'rejeitado' || prof.status === 'recusado') {
+          errorDiv.innerHTML = 'Seu cadastro foi recusado pela coordenação. Para mais informações, entre em contato com a Comissão de Saúde Mental: <a href="mailto:comissaosm@comshalom.org">comissaosm@comshalom.org</a>';
+          errorDiv.style.display = 'block';
+          errorDiv.style.background = '#fee2e2';
+          errorDiv.style.border = '1px solid #ef4444';
+          errorDiv.style.color = '#991b1b';
+          errorDiv.style.padding = '1rem';
+          errorDiv.style.borderRadius = '8px';
+          document.getElementById('loginPassword').value = '';
+          return;
+        }
+        // Cadastro inativo/arquivado
+        if (prof.status === 'inativo' || prof.status === 'arquivado') {
+          errorDiv.textContent = 'Seu cadastro está inativo no momento. Entre em contato com a coordenação para reativar.';
+          errorDiv.style.display = 'block';
+          errorDiv.style.background = '#f3f4f6';
+          errorDiv.style.border = '1px solid #9ca3af';
+          errorDiv.style.color = '#374151';
+          errorDiv.style.padding = '1rem';
+          errorDiv.style.borderRadius = '8px';
+          document.getElementById('loginPassword').value = '';
+          return;
+        }
 
         loggedProfessional = prof;
         errorDiv.style.display = 'none';
@@ -2985,6 +3064,23 @@
     }
 
     function professionalLogout() {
+      // Fecha quaisquer modais abertos para não vazarem entre sessões
+      try {
+        document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+        const termo = document.getElementById('termoModal');
+        if (termo) termo.style.display = 'none';
+        const complete = document.getElementById('completeModal');
+        if (complete) complete.classList.remove('show');
+        const ret = document.getElementById('returnModal');
+        if (ret) ret.classList.remove('show');
+        const ana = document.getElementById('anamnesisModal');
+        if (ana) ana.classList.remove('show');
+        document.body.style.overflow = 'auto';
+      } catch (e) { /* noop */ }
+
+      // Reseta estados temporários
+      completingBookingId = null;
+      returningBookingId = null;
       loggedProfessional = null;
       showView('professional');
     }
@@ -3005,6 +3101,8 @@
       document.getElementById('termoScrollAviso').style.display = 'block';
       // Scroll para o topo
       document.getElementById('termoScrollArea').scrollTop = 0;
+      // Se o conteúdo já couber na área (não precisar rolar), libera os botões
+      setTimeout(checkTermoScroll, 100);
     }
 
     function checkTermoScroll() {
@@ -3175,22 +3273,40 @@
       const duration = document.getElementById('newSlotDuration').value;
 
       if (!date || !time) {
-        showToast('Preencha data e horario.', 'error');
+        showToast('Preencha data e horário.', 'error');
         return;
       }
 
-      const today = formatDate(new Date());
-      if (date < today) {
-        showToast('Nao e possivel criar horarios no passado.', 'error');
+      // Valida data + hora (evita criar horários já passados hoje)
+      const slotDateTime = new Date(date + 'T' + time + ':00');
+      if (isNaN(slotDateTime.getTime())) {
+        showToast('Data ou horário inválidos.', 'error');
+        return;
+      }
+      if (slotDateTime.getTime() <= Date.now()) {
+        showToast('Não é possível criar horários no passado.', 'error');
         return;
       }
 
+      const durationMin = parseInt(duration);
       const slots = getData(STORAGE_KEYS.slots) || [];
 
-      // Check duplicate
-      const duplicate = slots.find(s => s.profId === loggedProfessional.id && s.date === date && s.time === time);
-      if (duplicate) {
-        showToast('Voce ja tem um horario nesta data e hora.', 'error');
+      // Check duplicate / overlap (mesmo dia, janelas de horário se sobrepõem)
+      const newStart = toMinutes(time);
+      const newEnd = newStart + durationMin;
+      const overlap = slots.find(s => {
+        if (s.profId !== loggedProfessional.id) return false;
+        if (s.date !== date) return false;
+        const existStart = toMinutes(s.time);
+        const existEnd = existStart + (parseInt(s.duration) || 60);
+        return newStart < existEnd && existStart < newEnd;
+      });
+      if (overlap) {
+        if (overlap.time === time) {
+          showToast('Você já tem um horário nesta data e hora.', 'error');
+        } else {
+          showToast(`Este horário se sobrepõe a um existente (${overlap.time}, ${overlap.duration} min).`, 'error');
+        }
         return;
       }
 
@@ -3227,7 +3343,11 @@
       const slots = getData(STORAGE_KEYS.slots) || [];
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const now = Date.now();
+      const durationMin = parseInt(duration);
       let count = 0;
+      let skippedPast = 0;
+      let skippedOverlap = 0;
 
       // Calcula a próxima ocorrência de cada dia a partir de hoje
       // getDay(): 0=Dom,1=Seg,...,6=Sab — data-day usa o mesmo padrão
@@ -3246,25 +3366,45 @@
           d.setDate(d.getDate() + daysToAdd);
           const dateStr = formatDate(d);
 
-          // Check duplicate
-          const duplicate = slots.find(s => s.profId === loggedProfessional.id && s.date === dateStr && s.time === time);
-          if (!duplicate) {
+          // Pula slots cujo horário já passou (ex.: hoje às 09:00 quando já são 10:00)
+          const slotDateTime = new Date(dateStr + 'T' + time + ':00');
+          if (isNaN(slotDateTime.getTime()) || slotDateTime.getTime() <= now) {
+            skippedPast++;
+            continue;
+          }
+
+          // Check duplicate / overlap
+          const newStart = toMinutes(time);
+          const newEnd = newStart + durationMin;
+          const overlap = slots.find(s => {
+            if (s.profId !== loggedProfessional.id) return false;
+            if (s.date !== dateStr) return false;
+            const existStart = toMinutes(s.time);
+            const existEnd = existStart + (parseInt(s.duration) || 60);
+            return newStart < existEnd && existStart < newEnd;
+          });
+          if (!overlap) {
             slots.push({
               id: 'slot-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5) + count,
               profId: loggedProfessional.id,
               date: dateStr,
               time: time,
-              duration: parseInt(duration),
+              duration: durationMin,
               createdAt: new Date().toISOString()
             });
             count++;
+          } else {
+            skippedOverlap++;
           }
         }
       }
 
       setData(STORAGE_KEYS.slots, slots);
       syncToApi('Slots', slots);
-      showToast(`${count} horarios recorrentes criados!`, 'success');
+      let msg = `${count} horário(s) recorrente(s) criado(s)!`;
+      if (skippedPast > 0) msg += ` ${skippedPast} ignorado(s) por estar(em) no passado.`;
+      if (skippedOverlap > 0) msg += ` ${skippedOverlap} ignorado(s) por sobreposição.`;
+      showToast(msg, count > 0 ? 'success' : 'info');
 
       // Clear selections
       document.querySelectorAll('#recurDays .recurring-day').forEach(el => el.classList.remove('selected'));
@@ -3325,8 +3465,17 @@
 
       for (const slot of futureSlots) {
         const booking = bookings.find(b => b.slotId === slot.id && b.status !== 'cancelled');
-        const status = booking ? 'booked' : 'available';
-        const statusLabel = booking ? 'Agendado' : 'Disponivel';
+        let status = 'available';
+        let statusLabel = 'Disponível';
+        if (booking) {
+          if (booking.status === 'completed') {
+            status = 'available';
+            statusLabel = 'Realizado';
+          } else {
+            status = 'booked';
+            statusLabel = 'Agendado';
+          }
+        }
 
         html += `<tr>
           <td>${formatDateBR(slot.date)}</td>
@@ -3378,12 +3527,18 @@
       for (const booking of myBookings) {
         const slot = slots.find(s => s.id === booking.slotId);
 
-        // Count sessions for this patient
+        // Count sessions for this patient — ordena pela data real do slot
         const allPatientSessions = bookings.filter(b =>
           b.profId === loggedProfessional.id &&
           b.patientEmail === booking.patientEmail &&
           (b.status === 'completed' || b.status === 'confirmed')
-        ).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        ).sort((a, b) => {
+          const sa = slots.find(s => s.id === a.slotId);
+          const sb = slots.find(s => s.id === b.slotId);
+          const da = sa ? sa.date + ' ' + sa.time : a.createdAt;
+          const db = sb ? sb.date + ' ' + sb.time : b.createdAt;
+          return da.localeCompare(db);
+        });
         const sessionIndex = allPatientSessions.findIndex(b => b.id === booking.id) + 1;
         const isReturn = booking.isReturn ? '<span class="status-tag booked" style="font-size: 0.7rem;">Retorno</span>' : '';
 
@@ -3621,8 +3776,10 @@
           showToast('E-mail de encaminhamento enviado para FC e Secretaria.', 'info');
         }
 
-        // Envia formulario de avaliacao automaticamente ao paciente (sessao final)
-        if (booking) {
+        // Envia formulário de avaliação apenas em casos encerrados de forma não-urgente
+        // (Via A = resolvido, Via B = psicoterapia). Em urgência/psiquiatria, evita mandar
+        // avaliação porque o fluxo de cuidado ainda está ativo.
+        if (booking && (step === 'resolved' || step === 'therapy')) {
           sendEmailNotification('notifyPatientEvaluation', {
             patientName: booking.patientName,
             patientEmail: booking.patientEmail,
@@ -3685,10 +3842,9 @@
         (b.status === 'completed' || b.status === 'confirmed')
       );
 
-      // Limite de 4 sessões
-      const completedCount = patientSessions.filter(s => s.status === 'completed').length;
-      if (completedCount >= 4) {
-        showToast(`${booking.patientName} já atingiu o limite de 4 sessões neste plantão.`, 'error');
+      // Limite de 4 sessões — conta concluídas + confirmadas (retornos já agendados)
+      if (patientSessions.length >= 4) {
+        showToast(`${booking.patientName} já atingiu o limite de 4 sessões neste plantão (concluídas + agendadas).`, 'error');
         return;
       }
 
@@ -3703,13 +3859,14 @@
         <div class="booking-detail"><span>Sessoes realizadas:</span><span>${patientSessions.filter(s => s.status === 'completed').length} de 4</span></div>
       `;
 
-      // Populate available slots for this professional
-      const today = formatDate(new Date());
-      const myAvailableSlots = slots.filter(s =>
-        s.profId === loggedProfessional.id &&
-        s.date >= today &&
-        !bookings.some(b => b.slotId === s.id && b.status !== 'cancelled')
-      ).sort((a, b) => a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
+      // Populate available slots for this professional (futuros — considera data + hora)
+      const now = new Date();
+      const myAvailableSlots = slots.filter(s => {
+        if (s.profId !== loggedProfessional.id) return false;
+        const dt = new Date(s.date + 'T' + s.time + ':00');
+        if (isNaN(dt.getTime()) || dt.getTime() <= now.getTime()) return false;
+        return !bookings.some(b => b.slotId === s.id && b.status !== 'cancelled');
+      }).sort((a, b) => a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
 
       const select = document.getElementById('returnSlotSelect');
       if (myAvailableSlots.length === 0) {
@@ -3728,6 +3885,21 @@
     function closeReturnModal() {
       document.getElementById('returnModal').classList.remove('show');
       document.body.style.overflow = 'auto';
+
+      // Se o profissional concluiu uma sessão escolhendo "retorno" e depois fechou o modal
+      // sem selecionar slot, o caso fica sem retorno agendado. Avisa para que ele possa
+      // reabrir quando criar um horário, evitando caso "preso".
+      if (returningBookingId) {
+        const bookings = getData(STORAGE_KEYS.bookings) || [];
+        const orig = bookings.find(b => b.id === returningBookingId);
+        if (orig && orig.status === 'completed' && orig.nextStep === 'return') {
+          const hasReturn = bookings.some(b => b.originalBookingId === returningBookingId && b.status !== 'cancelled');
+          if (!hasReturn) {
+            showToast(`Retorno de ${orig.patientName} ainda não agendado. Use "Agendar Retorno" no histórico quando tiver um horário disponível.`, 'info');
+          }
+        }
+      }
+
       returningBookingId = null;
     }
 
@@ -3763,6 +3935,9 @@
         patientEmail: originalBooking.patientEmail,
         patientPhone: originalBooking.patientPhone,
         type: originalBooking.type,
+        missao: originalBooking.missao || '',
+        casaId: originalBooking.casaId || '',
+        casaComunidade: originalBooking.casaComunidade || '',
         status: 'confirmed',
         createdAt: new Date().toISOString(),
         isReturn: true,
@@ -3774,6 +3949,22 @@
       setData(STORAGE_KEYS.bookings, bookings);
       syncToApi('Agendamentos', bookings);
 
+      // Notifica paciente e profissional sobre retorno agendado
+      try {
+        sendEmailNotification('notifyReturnBooking', {
+          patientName: originalBooking.patientName,
+          patientEmail: originalBooking.patientEmail,
+          patientPhone: originalBooking.patientPhone,
+          profName: loggedProfessional ? loggedProfessional.name : '',
+          profEmail: loggedProfessional ? loggedProfessional.email : '',
+          date: slot.date,
+          time: slot.time,
+          duration: slot.duration
+        });
+      } catch (e) {
+        console.warn('Falha ao enviar e-mail de retorno:', e);
+      }
+
       closeReturnModal();
       showToast(`Retorno agendado! ${originalBooking.patientName} em ${formatDateBR(slot.date)} as ${slot.time}`, 'success');
       renderDashboard();
@@ -3781,11 +3972,12 @@
 
     // ===== CANCEL BOOKING =====
     function cancelBooking(bookingId) {
-      if (!confirm('Deseja cancelar este agendamento? O horario ficara disponivel novamente.')) return;
+      if (!confirm('Deseja cancelar este agendamento? O horário ficará disponível novamente.')) return;
       const bookings = getData(STORAGE_KEYS.bookings) || [];
-      const updated = bookings.map(b => b.id === bookingId ? { ...b, status: 'cancelled' } : b);
+      const updated = bookings.map(b => b.id === bookingId ? { ...b, status: 'cancelled', cancelledAt: new Date().toISOString() } : b);
       setData(STORAGE_KEYS.bookings, updated);
-      showToast('Agendamento cancelado. O horario esta disponivel novamente.', 'info');
+      syncToApi('Agendamentos', updated);
+      showToast('Agendamento cancelado. O horário está disponível novamente.', 'info');
       renderDashboard();
     }
 
