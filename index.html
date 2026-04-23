@@ -1014,7 +1014,7 @@
       </div>
       <div class="header-nav">
         <button class="active" onclick="showView('patient')">Agendar Consulta</button>
-        <button onclick="showView('professional')">Area do Profissional</button>
+        <button onclick="showView('professional')">Área do Profissional</button>
         <button onclick="showView('admin')" style="background: rgba(245,158,11,0.3); border-color: var(--accent);">Admin</button>
         <span id="apiStatus" style="font-size: 0.7rem; padding: 0.3rem 0.6rem; border-radius: 12px; cursor: pointer;" onclick="syncFromApi().then(() => { const v = document.querySelector('.view.active'); if(v && v.id==='view-patient') renderCalendar(); else if(v && v.id==='view-dashboard') renderDashboard(); else if(v && v.id==='view-admin-dashboard') renderAdminDashboard(); })" title="Clique para sincronizar"></span>
       </div>
@@ -1112,22 +1112,37 @@
           </div>
           <div class="consent-banner-body">
             <p><strong>Prezado(a) Missionário(a) / Agente Formativo(a),</strong></p>
-            <p>Este documento tem como objetivo esclarecer os procedimentos, benefícios, limitações e compromissos relacionados ao serviço de Plantão de Aconselhamento Psicológico oferecido pela Comunidade Católica Shalom, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)</strong>.</p>
+            <p>Este documento tem como objetivo esclarecer os procedimentos, benefícios, limitações e compromissos relacionados ao serviço de Plantão de Aconselhamento Psicológico oferecido pela Comunidade Católica Shalom, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018)</strong> e com o Código de Ética Profissional do Psicólogo (Resolução CFP 010/2005).</p>
 
             <h4>1. NATUREZA DO SERVIÇO</h4>
-            <p>O Plantão de Aconselhamento Psicológico é um serviço de suporte psicológico pontual e imediato, não se caracterizando como psicoterapia continuada. Consiste em 1 a 4 sessões de atendimento com duração entre 60 e 90 minutos cada.</p>
+            <p>O Plantão de Aconselhamento Psicológico é um serviço de <strong>suporte psicológico pontual e imediato</strong>, não se caracterizando como psicoterapia continuada. Consiste em <strong>1 a 4 sessões</strong> de atendimento com duração entre 60 e 90 minutos cada. Ao final, se houver necessidade, o profissional indicará encaminhamentos (psicoterapia, psiquiatria, outros).</p>
 
             <h4>2. OBJETIVOS E LIMITAÇÕES</h4>
-            <p>O objetivo é oferecer acolhimento, orientação e suporte emocional para situações específicas. Não substitui um processo psicoterapêutico regular. Caso seja identificada a necessidade de acompanhamento contínuo, o profissional fará o encaminhamento adequado.</p>
+            <p>Oferecemos acolhimento, orientação e suporte emocional para situações específicas. <strong>O Plantão não é atendimento de emergência</strong>: em caso de risco imediato à vida, procure o CAPS, UPA ou disque 188 (CVV).</p>
 
-            <h4>3. PROTEÇÃO DOS SEUS DADOS PESSOAIS (LGPD)</h4>
-            <p>Seus dados pessoais serão tratados exclusivamente para as finalidades do atendimento psicológico. Você tem direito a acessar, corrigir e solicitar a exclusão dos seus dados a qualquer momento.</p>
+            <h4>3. QUAIS DADOS COLETAMOS</h4>
+            <p>Para realizar o atendimento, coletamos: nome, e-mail, telefone, missão/casa comunitária, cidade, motivo da procura, histórico de acompanhamento psicológico/psiquiátrico prévio, uso de medicação e observações relevantes que você queira informar.</p>
 
-            <h4>4. CONFIDENCIALIDADE E SIGILO</h4>
-            <p>Todas as informações compartilhadas serão mantidas em absoluto sigilo, de acordo com o Código de Ética Profissional do Psicólogo e a LGPD.</p>
+            <h4>4. QUEM TEM ACESSO AOS SEUS DADOS</h4>
+            <p>Seus dados são acessíveis apenas a: <strong>(a)</strong> o profissional que irá atendê-lo(a); <strong>(b)</strong> a coordenação do Plantão e a Comissão de Saúde Mental, estritamente para fins administrativos e de supervisão; <strong>(c)</strong> a secretaria da Comunidade Católica Shalom, apenas nos casos em que houver encaminhamento (Via B — psicoterapia, Via C — psiquiatria).</p>
+            <p>As informações clínicas compartilhadas nas sessões são protegidas pelo sigilo profissional. As únicas exceções legais ao sigilo são: risco iminente de suicídio, risco de dano a terceiros, suspeita de abuso/maus-tratos ou determinação judicial.</p>
 
-            <h4>5. CONTATO LGPD</h4>
-            <p>E-mail: juridico3@comshalom.org</p>
+            <h4>5. FINALIDADE E BASE LEGAL</h4>
+            <p>Tratamos seus dados com base no <strong>seu consentimento</strong> (Art. 7º, I e Art. 11, I da LGPD) e para o exercício regular da atividade de saúde (Art. 11, II, "f"). Os dados são usados exclusivamente para organizar seu atendimento, registrar o histórico clínico e fazer encaminhamentos quando necessário.</p>
+
+            <h4>6. PERÍODO DE RETENÇÃO</h4>
+            <p>Os registros clínicos são guardados por, no mínimo, <strong>5 anos</strong>, conforme determina a Resolução CFP 001/2009. Após esse prazo, os dados podem ser anonimizados para fins estatísticos ou eliminados.</p>
+
+            <h4>7. SEUS DIREITOS (LGPD)</h4>
+            <p>Você pode, a qualquer momento: (a) confirmar a existência do tratamento; (b) acessar, corrigir ou atualizar seus dados; (c) solicitar a anonimização ou eliminação de dados desnecessários; (d) revogar o consentimento. Para exercer esses direitos, escreva para <strong>juridico3@comshalom.org</strong> ou <strong>comissaosm@comshalom.org</strong>.</p>
+
+            <h4>8. COMO SERÁ A SESSÃO</h4>
+            <p>Após a confirmação do agendamento, o profissional entrará em contato pelo telefone ou e-mail informado para confirmar a modalidade (online ou presencial) e, quando online, enviar o link da sessão. <strong>As sessões ocorrem no horário de Brasília (UTC−3).</strong></p>
+
+            <h4>9. CANCELAMENTO E REMARCAÇÃO</h4>
+            <p>Caso precise cancelar ou remarcar, envie um e-mail para <strong>comissaosm@comshalom.org</strong> com pelo menos 24h de antecedência, informando seu nome, a data e o horário do agendamento.</p>
+
+            <p style="margin-top:1rem; padding:0.8rem; background:#eff6ff; border-left:4px solid var(--primary); border-radius:4px; font-size:0.88rem;">Ao clicar em <strong>"Aceito e Concordo"</strong>, você declara ter lido e entendido este termo e autoriza, livremente e de forma esclarecida, o tratamento dos seus dados pessoais e de saúde conforme descrito acima.</p>
           </div>
           <div class="consent-banner-footer">
             <button class="btn btn-outline" onclick="hideConsentTerm()">Voltar</button>
@@ -1194,7 +1209,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2025 Comunidade Catolica Shalom - Plantao de Aconselhamento Psicologico</p>
+          <p>&copy; 2025 Comunidade Católica Shalom &mdash; Plantão de Aconselhamento Psicológico</p>
         </div>
       </div>
     </footer>
@@ -1207,7 +1222,7 @@
     <div class="container">
       <div class="login-container">
         <div class="login-header">
-          <h2>Area do Profissional</h2>
+          <h2>Área do Profissional</h2>
           <p>Acesso restrito para profissionais credenciados</p>
         </div>
         <div class="login-body">
@@ -1760,56 +1775,56 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label>Qual a sua Missao? <span class="required">*</span></label>
+            <label>Qual é a sua Missão? <span class="required">*</span></label>
             <select class="form-input" id="bkMissao" onchange="filterCasas()">
               <option value="">-- Selecione --</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Qual a sua Casa Comunitaria? <span class="required">*</span></label>
+            <label>Qual é a sua Casa Comunitária? <span class="required">*</span></label>
             <select class="form-input" id="bkCasa">
-              <option value="">-- Selecione primeiro a Missao --</option>
+              <option value="">-- Selecione primeiro a Missão --</option>
             </select>
           </div>
         </div>
 
-        <div class="form-section-title">Pre-Anamnese</div>
+        <div class="form-section-title">Pré-Anamnese</div>
         <div class="form-group">
           <label>Qual a sua cidade e estado? <span class="required">*</span></label>
           <input type="text" class="form-input" id="bkCity">
         </div>
         <div class="form-group">
-          <label>Ha quanto tempo esta na Comunidade?</label>
+          <label>Há quanto tempo está na Comunidade?</label>
           <input type="text" class="form-input" id="bkTimeCommunity" placeholder="Ex: 3 anos">
         </div>
         <div class="form-group">
-          <label>Qual o motivo principal que o(a) leva a buscar atendimento? <span class="required">*</span></label>
+          <label>Qual o motivo principal que leva você a buscar atendimento? <span class="required">*</span></label>
           <textarea class="form-input" id="bkReason" placeholder="Descreva brevemente o motivo da sua procura..."></textarea>
         </div>
         <div class="form-group">
-          <label>Ja fez ou faz acompanhamento psicologico/psiquiatrico?</label>
+          <label>Já fez ou faz acompanhamento psicológico/psiquiátrico?</label>
           <select class="form-input" id="bkPrevious">
             <option value="">-- Selecione --</option>
-            <option value="nao">Nao</option>
+            <option value="nao">Não</option>
             <option value="sim_passado">Sim, no passado</option>
             <option value="sim_atual">Sim, atualmente</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Faz uso de medicacao psiquiatrica?</label>
+          <label>Faz uso de medicação psiquiátrica?</label>
           <select class="form-input" id="bkMedication">
             <option value="">-- Selecione --</option>
-            <option value="nao">Nao</option>
+            <option value="nao">Não</option>
             <option value="sim">Sim</option>
           </select>
         </div>
         <div class="form-group" id="bkMedicationDetailGroup" style="display:none;">
-          <label>Qual(is) medicacao(oes)?</label>
+          <label>Quais medicações?</label>
           <input type="text" class="form-input" id="bkMedicationDetail">
         </div>
         <div class="form-group">
-          <label>Observacoes adicionais</label>
-          <textarea class="form-input" id="bkNotes" placeholder="Informacoes adicionais que julgar relevantes..."></textarea>
+          <label>Observações adicionais</label>
+          <textarea class="form-input" id="bkNotes" placeholder="Informações adicionais que julgar relevantes..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -1825,7 +1840,7 @@
   <div id="anamnesisModal" class="modal-overlay">
     <div class="modal">
       <div class="modal-header" style="background: linear-gradient(135deg, #92400e, var(--accent));">
-        <h2>Ficha de Pre-Anamnese</h2>
+        <h2>Ficha de Pré-Anamnese</h2>
         <p id="anamnesisModalSubtitle"></p>
       </div>
       <div class="modal-body" id="anamnesisContent"></div>
@@ -2493,6 +2508,13 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      // Se o filtro atual apontar para um profissional que não existe mais
+      // (apagado ou status != aprovado), volta para "Todos".
+      if (currentFilter && currentFilter !== 'all') {
+        const stillExists = profs.some(p => p.id === currentFilter && p.status !== 'pendente' && p.status !== 'rejeitado' && p.status !== 'recusado' && p.status !== 'inativo');
+        if (!stillExists) currentFilter = 'all';
+      }
+
       // Week label
       const weekEnd = new Date(currentWeekStart);
       weekEnd.setDate(weekEnd.getDate() + 6);
@@ -2669,8 +2691,8 @@
         <div class="booking-detail"><span>Profissional:</span><span>${prof ? prof.name : '?'}</span></div>
         <div class="booking-detail"><span>Especialidade:</span><span>${prof ? prof.specialty : '?'}</span></div>
         <div class="booking-detail"><span>Data:</span><span>${getDayNameFull(slot.date)}, ${formatDateBR(slot.date)}</span></div>
-        <div class="booking-detail"><span>Horario:</span><span>${slot.time}</span></div>
-        <div class="booking-detail"><span>Duracao:</span><span>${slot.duration} minutos</span></div>
+        <div class="booking-detail"><span>Horário:</span><span>${slot.time}</span></div>
+        <div class="booking-detail"><span>Duração:</span><span>${slot.duration} minutos</span></div>
       `;
 
       // Reset form
@@ -2687,7 +2709,7 @@
       const missaoSel = document.getElementById('bkMissao');
       missaoSel.innerHTML = '<option value="">-- Selecione --</option>';
       uniqueMissoes.forEach(m => { missaoSel.innerHTML += `<option value="${m}">${m}</option>`; });
-      document.getElementById('bkCasa').innerHTML = '<option value="">-- Selecione primeiro a Missao --</option>';
+      document.getElementById('bkCasa').innerHTML = '<option value="">-- Selecione primeiro a Missão --</option>';
 
       document.getElementById('bookingModal').classList.add('show');
       document.body.style.overflow = 'hidden';
@@ -2699,17 +2721,26 @@
       selectedSlotForBooking = null;
     }
 
-    // Show/hide medication detail
-    document.getElementById('bkMedication').addEventListener('change', function () {
-      document.getElementById('bkMedicationDetailGroup').style.display =
-        this.value === 'sim' ? 'block' : 'none';
-    });
+    // Show/hide medication detail — anexa após o DOM estar pronto
+    function attachMedicationListener() {
+      const el = document.getElementById('bkMedication');
+      if (!el) return;
+      el.addEventListener('change', function () {
+        const grp = document.getElementById('bkMedicationDetailGroup');
+        if (grp) grp.style.display = this.value === 'sim' ? 'block' : 'none';
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachMedicationListener);
+    } else {
+      attachMedicationListener();
+    }
 
     function filterCasas() {
       const missaoSel = document.getElementById('bkMissao').value;
       const casaSel = document.getElementById('bkCasa');
       casaSel.innerHTML = '<option value="">-- Selecione --</option>';
-      if (!missaoSel) { casaSel.innerHTML = '<option value="">-- Selecione primeiro a Missao --</option>'; return; }
+      if (!missaoSel) { casaSel.innerHTML = '<option value="">-- Selecione primeiro a Missão --</option>'; return; }
       const missoes = getData(STORAGE_KEYS.missoes) || [];
       missoes.filter(m => m.missao === missaoSel).forEach(m => {
         casaSel.innerHTML += `<option value="${m.id}">${m.casa}</option>`;
@@ -2737,6 +2768,19 @@
         return;
       }
 
+      // Validação de telefone: somente dígitos, 10 ou 11 (BR) — ou com +NN para exterior
+      const phoneDigits = phone.replace(/\D/g, '');
+      const isIntl = phone.trim().startsWith('+');
+      if (isIntl) {
+        if (phoneDigits.length < 8) {
+          showToast('Telefone internacional inválido. Inclua DDI, DDD e número.', 'error');
+          return;
+        }
+      } else if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+        showToast('Telefone inválido. Use o formato (DDD) 00000-0000.', 'error');
+        return;
+      }
+
       if (!selectedSlotForBooking) return;
 
       // Check if slot is still available
@@ -2758,6 +2802,34 @@
       );
       if (patientSessions.length >= 4) {
         showToast('Este e-mail já atingiu o limite de 4 sessões no Plantão. Entre em contato com a coordenação: comissaosm@comshalom.org', 'error');
+        return;
+      }
+
+      // Bloqueia duplicata: mesmo e-mail não pode ter duas sessões confirmadas no mesmo dia
+      const slotsAll = getData(STORAGE_KEYS.slots) || [];
+      const sameDayDup = bookings.some(b => {
+        if ((b.patientEmail || '').toLowerCase() !== emailLower) return false;
+        if (b.status !== 'confirmed') return false;
+        const bSlot = slotsAll.find(s => s.id === b.slotId);
+        return bSlot && bSlot.date === selectedSlotForBooking.date;
+      });
+      if (sameDayDup) {
+        showToast(`Você já tem um agendamento confirmado em ${formatDateBR(selectedSlotForBooking.date)}. Se deseja remarcar, cancele o anterior pelo e-mail comissaosm@comshalom.org.`, 'error');
+        return;
+      }
+
+      // Bloqueia agendamentos duplicados no mesmo dia para o mesmo e-mail
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const sameDayConflict = bookings.find(b => {
+        if ((b.patientEmail || '').toLowerCase() !== emailLower) return false;
+        if (b.status !== 'confirmed') return false;
+        const s = slots.find(x => x.id === b.slotId);
+        return s && s.date === selectedSlotForBooking.date;
+      });
+      if (sameDayConflict) {
+        const s = slots.find(x => x.id === sameDayConflict.slotId);
+        const horaExist = s ? s.time : '';
+        showToast(`Você já tem um agendamento confirmado no dia ${formatDateBR(selectedSlotForBooking.date)} às ${horaExist}. Se precisar remarcar, entre em contato com comissaosm@comshalom.org.`, 'error');
         return;
       }
 
@@ -2844,7 +2916,7 @@
         id: 'notif-' + Date.now(),
         profId: booking.profId,
         bookingId: booking.id,
-        message: `Novo agendamento: ${booking.patientName} em ${formatDateBR(slot.date)} as ${slot.time}`,
+        message: `Novo agendamento: ${booking.patientName} em ${formatDateBR(slot.date)} às ${slot.time}`,
         read: false,
         createdAt: new Date().toISOString()
       });
@@ -2870,7 +2942,8 @@
         duration: slot.duration
       });
 
-      console.log(`[NOTIFICACAO] Para ${prof ? prof.name : '?'}: Novo agendamento de ${booking.patientName} em ${formatDateBR(slot.date)} as ${slot.time}`);
+      // Log mínimo, sem expor nome do paciente no console em produção
+      console.log(`[notif] novo agendamento id=${booking.id} em ${formatDateBR(slot.date)} às ${slot.time}`);
     }
 
     // =============================================
@@ -4009,16 +4082,16 @@
         </div>
 
         <div class="anamnesis-view">
-          <h4>Pre-Anamnese</h4>
+          <h4>Pré-Anamnese</h4>
           <div class="anamnesis-field"><label>Missao:</label><p>${booking.missao || '-'}</p></div>
           <div class="anamnesis-field"><label>Casa Comunitaria:</label><p>${booking.casaComunidade || '-'}</p></div>
           <div class="anamnesis-field"><label>Cidade/Estado:</label><p>${a.city || '-'}</p></div>
           <div class="anamnesis-field"><label>Tempo na Comunidade:</label><p>${a.timeCommunity || '-'}</p></div>
           <div class="anamnesis-field"><label>Motivo da procura:</label><p>${a.reason || '-'}</p></div>
           <div class="anamnesis-field"><label>Acompanhamento psicologico anterior:</label><p>${prevTherapyMap[a.previousTherapy] || '-'}</p></div>
-          <div class="anamnesis-field"><label>Uso de medicacao psiquiatrica:</label><p>${medMap[a.medication] || '-'}</p></div>
+          <div class="anamnesis-field"><label>Uso de medicação psiquiátrica:</label><p>${medMap[a.medication] || '-'}</p></div>
           ${a.medication === 'sim' ? `<div class="anamnesis-field"><label>Medicacao(oes):</label><p>${a.medicationDetail || '-'}</p></div>` : ''}
-          <div class="anamnesis-field"><label>Observacoes adicionais:</label><p>${a.notes || '-'}</p></div>
+          <div class="anamnesis-field"><label>Observações adicionais:</label><p>${a.notes || '-'}</p></div>
         </div>
 
         ${booking.nextStep ? `
@@ -4668,6 +4741,11 @@
       const toast = document.createElement('div');
       toast.className = 'toast ' + type;
       toast.textContent = message;
+      // Acessibilidade: erros são anunciados com assertividade;
+      // sucesso/info como aviso polite (não interrompe leitor de tela).
+      toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+      toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+      toast.setAttribute('aria-atomic', 'true');
       document.body.appendChild(toast);
 
       setTimeout(() => {
@@ -5254,6 +5332,58 @@
       syncToApi('Missoes', missoes);
       renderMissoesTable();
       showToast('Casa excluída com sucesso.', 'success');
+    }
+
+    // Modal "Ver todos os horários do dia" — aberto pelo chip "+N mais" do calendário
+    function openDaySlotsModal(dateStr) {
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      const now = Date.now();
+
+      // Todos os slots deste dia, respeitando filtro de profissional ativo
+      const daySlots = slots.filter(s => {
+        if (s.date !== dateStr) return false;
+        if (currentFilter && currentFilter !== 'all' && s.profId !== currentFilter) return false;
+        return true;
+      }).sort((a, b) => a.time.localeCompare(b.time));
+
+      let body = '';
+      if (daySlots.length === 0) {
+        body = '<p style="text-align:center; color:var(--text-light); padding:1rem;">Nenhum horário disponível neste dia.</p>';
+      } else {
+        body = '<div style="display:flex; flex-direction:column; gap:0.6rem;">';
+        for (const slot of daySlots) {
+          const prof = profs.find(p => p.id === slot.profId);
+          const profName = prof ? prof.name : 'Profissional';
+          const isBooked = bookings.some(b => b.slotId === slot.id && b.status !== 'cancelled');
+          const slotDt = new Date(slot.date + 'T' + slot.time + ':00');
+          const isPast = !isNaN(slotDt.getTime()) && slotDt.getTime() <= now;
+
+          if (isBooked || isPast) {
+            const tag = isBooked ? 'Ocupado' : 'Passado';
+            body += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.7rem 1rem; background:#f3f4f6; border-radius:8px; opacity:0.7;">
+              <div><strong>${slot.time}</strong> — ${profName}<br><span style="font-size:0.8rem; color:var(--text-light);">${slot.duration} min</span></div>
+              <span class="status-tag booked">${tag}</span>
+            </div>`;
+          } else {
+            body += `<button type="button" class="btn btn-outline" style="width:100%; text-align:left; display:flex; justify-content:space-between; align-items:center; padding:0.7rem 1rem;" onclick="closeDynamicModal(); openBookingModal('${slot.id}');">
+              <span><strong>${slot.time}</strong> — ${profName}<br><span style="font-size:0.8rem; color:var(--text-light); font-weight:normal;">${slot.duration} min</span></span>
+              <span class="status-tag available">Agendar</span>
+            </button>`;
+          }
+        }
+        body += '</div>';
+      }
+
+      const title = `Horários disponíveis — ${getDayNameFull(dateStr)}, ${formatDateBR(dateStr)}`;
+      showDynamicModal(title, body, 'Fechar', closeDynamicModal);
+      // Troca o botão de cancelar por nada (só o "Fechar" basta)
+      const footer = document.querySelector('#dynamicModal .modal-footer');
+      if (footer) {
+        const btns = footer.querySelectorAll('button');
+        if (btns.length >= 2) btns[0].style.display = 'none';
+      }
     }
 
     function showDynamicModal(title, bodyHtml, btnText, onConfirm) {
