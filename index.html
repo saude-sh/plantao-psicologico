@@ -2934,8 +2934,8 @@
 
       document.getElementById('confirmationModal').classList.add('show');
 
-      // Simulate notification to professional
-      simulateNotification(booking, prof, selectedSlotForBooking);
+      // Simulate notification to professional (usa confirmedSlot — selectedSlotForBooking ja foi zerado)
+      simulateNotification(booking, prof, confirmedSlot);
 
       renderCalendar();
     }
