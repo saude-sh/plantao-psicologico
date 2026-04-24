@@ -1238,6 +1238,7 @@
             <input type="password" class="form-input" id="loginPassword" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter') professionalLogin()">
           </div>
           <button class="btn btn-success" style="width:100%; margin-top: 0.5rem;" onclick="professionalLogin()">Entrar</button>
+          <p style="text-align:center;margin-top:0.75rem;font-size:0.85rem;"><a href="#" onclick="event.preventDefault(); solicitarResetSenha('professional')" style="color:var(--primary);">Esqueci minha senha</a></p>
           <div style="text-align:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border);">
             <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:0.5rem;">Ainda não tem acesso?</p>
             <button class="btn btn-outline" style="width:100%;" onclick="showSelfRegister()">Quero me cadastrar</button>
@@ -1439,6 +1440,7 @@
             <input type="password" class="form-input" id="adminPassword" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter') adminLogin()">
           </div>
           <button class="btn btn-accent" style="width:100%; margin-top: 0.5rem;" onclick="adminLogin()">Entrar</button>
+          <p style="text-align:center;margin-top:0.75rem;font-size:0.85rem;"><a href="#" onclick="event.preventDefault(); solicitarResetSenha('admin')" style="color:var(--accent);">Esqueci minha senha</a></p>
           <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: var(--text-light);">Primeiro acesso? Use o perfil "Super Admin" com a senha padrao.</p>
         </div>
       </div>
@@ -2202,6 +2204,17 @@
     // { ok: false, reason: 'network'|'timeout'|'server'|'parse', error: string } em falha.
     async function apiCall(payload, timeoutMs = 30000) {
       if (!API_URL) return { ok: false, reason: 'no-api', error: 'API_URL não configurada', data: null };
+
+      // Anexa credenciais de admin automaticamente, se houver admin logado.
+      // O backend exige isso para save/delete em abas sensíveis (Profissionais, Admins, Config, Missoes)
+      // e para qualquer delete/saveConfig.
+      try {
+        if (typeof loggedAdmin !== 'undefined' && loggedAdmin && loggedAdmin.email) {
+          if (!payload.adminEmail) payload.adminEmail = loggedAdmin.email;
+          if (!payload.adminPassword && loggedAdmin.password) payload.adminPassword = loggedAdmin.password;
+        }
+      } catch (_) { /* loggedAdmin pode não existir em algum fluxo */ }
+
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -5087,6 +5100,25 @@
     // ADMIN PANEL
     // =============================================
     let loggedAdmin = null;
+
+    // Auto-serviço "Esqueci minha senha" — chama o backend, que gera senha
+    // temporária, atualiza a planilha e envia por email ao usuário.
+    async function solicitarResetSenha(userType) {
+      const label = userType === 'admin' ? 'administrador' : 'profissional';
+      const email = (prompt('Digite o e-mail cadastrado como ' + label + ':') || '').trim();
+      if (!email) return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('E-mail inválido.', 'error');
+        return;
+      }
+      showToast('Enviando solicitação...', 'info');
+      const result = await apiCall({ action: 'requestPasswordReset', email: email, userType: userType });
+      if (result.ok) {
+        alert('Se o e-mail estiver cadastrado, você receberá uma nova senha temporária em alguns instantes. Verifique também a caixa de spam.');
+      } else {
+        showToast('Não foi possível processar a solicitação. Tente novamente mais tarde.', 'error');
+      }
+    }
 
     function getAdminUsers() {
       let admins = getData('plantao_admins');
