@@ -2461,19 +2461,26 @@
     // =============================================
     let adminLoggedIn = false;
 
+    // Aceite do termo é por SESSÃO (não persiste entre reloads/abas novas).
+    // Garante que todo paciente veja e aceite o termo antes de ir para o calendário.
+    let patientConsentThisSession = false;
+
     function showView(viewName) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.header-nav button, .mobile-nav button').forEach(b => b.classList.remove('active'));
 
       if (viewName === 'patient') {
-        const consentAccepted = getData(STORAGE_KEYS.consent);
-        // Aceita tanto o formato antigo (boolean true) quanto o novo ({accepted, acceptedAt, version})
-        const isAccepted = consentAccepted === true || (consentAccepted && consentAccepted.accepted === true);
-        if (isAccepted) {
+        if (patientConsentThisSession) {
           document.getElementById('view-patient').classList.add('active');
           renderCalendar();
         } else {
+          // Sempre começa pelo welcomeScreen (não pelo termo no meio)
+          const welcome = document.getElementById('welcomeScreen');
+          const consentScr = document.getElementById('consentScreen');
+          if (welcome) welcome.style.display = 'block';
+          if (consentScr) consentScr.style.display = 'none';
           document.getElementById('view-consent').classList.add('active');
+          window.scrollTo(0, 0);
         }
         document.querySelectorAll('.header-nav button, .mobile-nav button').forEach(b => { if (b.textContent.includes('Agendar')) b.classList.add('active'); });
       } else if (viewName === 'professional') {
@@ -2518,6 +2525,7 @@
         acceptedAt: new Date().toISOString(),
         version: CONSENT_VERSION
       });
+      patientConsentThisSession = true;
       showView('patient');
       showToast('Termo aceito! Agora você pode agendar seu atendimento.', 'success');
     }
@@ -2703,6 +2711,12 @@
     // BOOKING FLOW
     // =============================================
     function openBookingModal(slotId) {
+      // Defesa: impede abrir o modal de agendamento sem ter aceitado o termo nesta sessão
+      if (!patientConsentThisSession) {
+        showToast('Você precisa ler e aceitar o Termo de Consentimento antes de agendar.', 'warning');
+        showView('patient');
+        return;
+      }
       const slots = getData(STORAGE_KEYS.slots) || [];
       const profs = getData(STORAGE_KEYS.professionals) || [];
       const slot = slots.find(s => s.id === slotId);
@@ -2872,10 +2886,21 @@
       const missoes = getData(STORAGE_KEYS.missoes) || [];
       const casaData = missoes.find(m => m.id === casaId);
 
-      // Registra o consentimento junto ao agendamento (trilha LGPD)
+      // Registra o consentimento junto ao agendamento (trilha LGPD).
+      // O aceite é exigido na sessão atual (patientConsentThisSession), então
+      // gravamos o timestamp do aceite dessa sessão — não um aceite antigo.
       const consentData = getData(STORAGE_KEYS.consent);
       const consentAcceptedAt = (consentData && consentData.acceptedAt) ? consentData.acceptedAt : new Date().toISOString();
       const consentVersion = (consentData && consentData.version) ? consentData.version : (typeof CONSENT_VERSION !== 'undefined' ? CONSENT_VERSION : 'v1.0');
+
+      // Sanity check: se por algum motivo o aceite não foi registrado nesta sessão,
+      // bloqueia o agendamento e volta para a tela de termo.
+      if (!patientConsentThisSession) {
+        showToast('É necessário aceitar o Termo de Consentimento antes de agendar.', 'error');
+        patientConsentThisSession = false;
+        showView('patient');
+        return;
+      }
 
       const booking = {
         id: 'bk-' + Date.now(),
