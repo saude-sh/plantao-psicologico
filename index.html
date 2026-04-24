@@ -2821,15 +2821,23 @@
         return;
       }
 
-      // Limite global: paciente não pode ter mais de 4 sessões ativas/realizadas no plantão,
-      // considerando todos os profissionais.
+      // Bloqueia apenas se o paciente tem um CICLO ATIVO em andamento.
+      // Um ciclo é considerado ativo quando:
+      //  - Há uma sessão futura confirmada, OU
+      //  - Última sessão concluída indicou nextStep='return' (aguardando retorno)
+      // Depois que o ciclo é encerrado (Via A/B/C/urgência ou cancelamento),
+      // o paciente pode iniciar um novo ciclo livremente.
       const emailLower = email.toLowerCase();
-      const patientSessions = bookings.filter(b =>
-        (b.patientEmail || '').toLowerCase() === emailLower &&
-        (b.status === 'completed' || b.status === 'confirmed')
-      );
-      if (patientSessions.length >= 4) {
-        showToast('Este e-mail já atingiu o limite de 4 sessões no Plantão. Entre em contato com a coordenação: comissaosm@comshalom.org', 'error');
+      const patientBookings = bookings
+        .filter(b => (b.patientEmail || '').toLowerCase() === emailLower)
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+      const hasConfirmedFuture = patientBookings.some(b => b.status === 'confirmed');
+      const lastCompleted = patientBookings.find(b => b.status === 'completed');
+      const waitingReturn = lastCompleted && lastCompleted.nextStep === 'return';
+
+      if (hasConfirmedFuture || waitingReturn) {
+        showToast('Você já possui um ciclo de atendimento em andamento no Plantão. Aguarde a conclusão do ciclo atual ou entre em contato: comissaosm@comshalom.org', 'warning');
         return;
       }
 
