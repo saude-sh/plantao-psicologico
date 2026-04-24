@@ -2937,7 +2937,7 @@
       document.body.style.overflow = 'auto';
     }
 
-    function simulateNotification(booking, prof, slot) {
+    async function simulateNotification(booking, prof, slot) {
       // Salva notificacao local
       const notifications = getData('plantao_notifications') || [];
       notifications.push({
@@ -2950,25 +2950,37 @@
       });
       setData('plantao_notifications', notifications);
 
-      // Envia e-mails reais via API (se configurada)
-      sendEmailNotification('notifyProfessional', {
-        bookingId: booking.id,
-        profEmail: prof ? prof.email : '',
-        profName: prof ? prof.name : '',
-        patientName: booking.patientName,
-        date: formatDateBR(slot.date),
-        time: slot.time,
-        duration: slot.duration
-      });
+      // Envia e-mails reais via API (se configurada) e reporta falhas
+      if (API_URL) {
+        const [r1, r2] = await Promise.all([
+          sendEmailNotification('notifyProfessional', {
+            bookingId: booking.id,
+            profEmail: prof ? prof.email : '',
+            profName: prof ? prof.name : '',
+            patientName: booking.patientName,
+            date: formatDateBR(slot.date),
+            time: slot.time,
+            duration: slot.duration
+          }),
+          sendEmailNotification('notifyPatientConfirmation', {
+            patientEmail: booking.patientEmail,
+            patientName: booking.patientName,
+            profName: prof ? prof.name : '',
+            date: formatDateBR(slot.date),
+            time: slot.time,
+            duration: slot.duration
+          })
+        ]);
 
-      sendEmailNotification('notifyPatientConfirmation', {
-        patientEmail: booking.patientEmail,
-        patientName: booking.patientName,
-        profName: prof ? prof.name : '',
-        date: formatDateBR(slot.date),
-        time: slot.time,
-        duration: slot.duration
-      });
+        if (!r1.ok && r1.reason !== 'no-api') {
+          console.warn('[EMAIL] Falha ao notificar profissional:', r1.error);
+        }
+        if (!r2.ok && r2.reason !== 'no-api') {
+          console.warn('[EMAIL] Falha ao enviar confirmação ao paciente:', r2.error);
+          // Aviso não-bloqueante — agendamento já está confirmado
+          showToast('Aviso: e-mail de confirmação não pôde ser enviado. O agendamento foi registrado normalmente.', 'warning');
+        }
+      }
 
       // Log mínimo, sem expor nome do paciente no console em produção
       console.log(`[notif] novo agendamento id=${booking.id} em ${formatDateBR(slot.date)} às ${slot.time}`);
