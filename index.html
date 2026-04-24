@@ -1254,7 +1254,7 @@
         <div class="login-body">
           <div id="registerError" class="login-error" style="display:none;"></div>
           <div id="registerSuccess" style="display:none; background:#d1fae5; border:1px solid #86efac; color:#166534; padding:1rem; border-radius:8px; text-align:center; margin-bottom:1rem;">
-            <strong>Cadastro enviado!</strong><br>Aguarde a aprovacao da coordenacao. Voce recebera um e-mail quando seu acesso for liberado.
+            <strong>Cadastro enviado!</strong><br>Aguarde a aprovação da coordenação. Você receberá um e-mail quando seu acesso for liberado.
           </div>
           <div id="registerFields">
             <div class="form-group">
@@ -1307,7 +1307,7 @@
       <div class="container dashboard-header-content">
         <div class="prof-welcome">
           <h2 id="dashWelcome">Bem-vindo(a)</h2>
-          <p id="dashSubtitle">Gerencie seus horarios e atendimentos</p>
+          <p id="dashSubtitle">Gerencie seus horários e atendimentos</p>
         </div>
         <div style="display:flex; gap:0.5rem;">
           <button class="btn btn-outline" style="color:white; border-color: rgba(255,255,255,0.5);" onclick="openChangeProfPasswordModal()">Alterar Senha</button>
@@ -1355,7 +1355,7 @@
           </div>
 
           <div style="margin-bottom: 1rem;">
-            <h4 style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem;">Adicionar horario recorrente (semanal)</h4>
+            <h4 style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem;">Adicionar horário recorrente (semanal)</h4>
             <div class="add-slot-form">
               <div class="form-group">
                 <label>Hora inicio</label>
@@ -1388,7 +1388,7 @@
                 <div class="recurring-day" data-day="6" onclick="toggleRecurDay(this)" title="Sábado">Sáb</div>
                 <div class="recurring-day" data-day="0" onclick="toggleRecurDay(this)" title="Domingo">Dom</div>
               </div>
-              <button class="btn btn-accent btn-sm" style="margin-top: 0.8rem;" onclick="addRecurringSlots()">Criar horarios recorrentes</button>
+              <button class="btn btn-accent btn-sm" style="margin-top: 0.8rem;" onclick="addRecurringSlots()">Criar horários recorrentes</button>
             </div>
           </div>
         </div>
@@ -1453,7 +1453,7 @@
       <div class="container dashboard-header-content">
         <div class="prof-welcome">
           <h2 id="adminWelcome">Painel Administrativo</h2>
-          <p id="adminRole">Gerencie profissionais, horarios e agendamentos</p>
+          <p id="adminRole">Gerencie profissionais, horários e agendamentos</p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
           <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white;" onclick="openAdminSettings()">Minha Conta</button>
@@ -1525,6 +1525,9 @@
               <select id="filterBookingProf" class="form-input" style="width:auto; padding:0.4rem 0.8rem; font-size:0.85rem;" onchange="renderAdminBookings()">
                 <option value="">Todos os profissionais</option>
               </select>
+              <input type="date" id="filterBookingDateStart" class="form-input" style="width:auto; padding:0.4rem 0.8rem; font-size:0.85rem;" onchange="renderAdminBookings()" title="Data inicial">
+              <input type="date" id="filterBookingDateEnd" class="form-input" style="width:auto; padding:0.4rem 0.8rem; font-size:0.85rem;" onchange="renderAdminBookings()" title="Data final">
+              <button class="btn btn-sm" onclick="exportBookingsCSV()" title="Exportar resultados em CSV">⬇ CSV</button>
             </div>
           </div>
           <div id="adminBookingsContainer"></div>
@@ -1543,7 +1546,7 @@
       <div id="admin-tab-backup" class="tab-panel">
         <div class="slot-manager">
           <h3>🗄️ Backup e Restauracao de Dados</h3>
-          <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:1.5rem;">Use esta aba para exportar todos os dados locais (profissionais, horarios, agendamentos) ou reenviar dados para o servidor.</p>
+          <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:1.5rem;">Use esta aba para exportar todos os dados locais (profissionais, horários, agendamentos) ou reenviar dados para o servidor.</p>
 
           <div style="display:flex;flex-direction:column;gap:1rem;">
 
@@ -1964,11 +1967,11 @@
       <div class="modal-body">
         <div class="booking-summary" id="returnPatientInfo"></div>
 
-        <div class="form-section-title">Escolha o horario do retorno</div>
+        <div class="form-section-title">Escolha o horário do retorno</div>
         <div class="form-group">
           <label>Selecione um dos seus horários disponíveis <span class="required">*</span></label>
           <select class="form-input" id="returnSlotSelect">
-            <option value="">-- Carregando horarios --</option>
+            <option value="">-- Carregando horários --</option>
           </select>
         </div>
         <p style="font-size: 0.8rem; color: var(--text-light); margin-top: -0.5rem;">
@@ -2000,7 +2003,7 @@
           <select class="form-input" id="completeNextStep" onchange="onNextStepChange()">
             <option value="">-- Selecione --</option>
             <option value="return">Agendar sessão de retorno (ainda há sessões restantes)</option>
-            <option value="resolved">Caso resolvido no plantao (Via A) - nao precisa de encaminhamento</option>
+            <option value="resolved">Caso resolvido no plantão (Via A) - não precisa de encaminhamento</option>
             <option value="therapy">Encaminhamento para psicoterapia (Via B)</option>
             <option value="psychiatry">Encaminhamento para psiquiatria (Via C)</option>
             <option value="urgency">Urgencia (Via C) - acionar protocolo imediato</option>
@@ -2137,6 +2140,17 @@
     let apiAvailable = false;
     let syncInProgress = false;
 
+    // HTML escape helper - previne XSS em strings interpoladas em innerHTML
+    function esc(s) {
+      if (s === null || s === undefined) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     // Leitura: sempre do localStorage (cache)
     function getData(key) {
       try {
@@ -2171,48 +2185,58 @@
 
     // Envia dados para a API
     async function syncToApi(sheetName, data) {
-      if (!API_URL) return;
-      try {
-        if (Array.isArray(data)) {
-          console.log('[API Sync] Enviando ' + sheetName + ' (' + data.length + ' registros)');
-          await apiCall({ action: 'syncSheet', sheet: sheetName, data: data });
-          console.log('[API Sync] ' + sheetName + ' OK');
-        }
-      } catch (err) {
-        console.warn('[API Sync] Erro ao sincronizar ' + sheetName + ':', err.message);
+      if (!API_URL) return { ok: false, reason: 'no-api' };
+      if (!Array.isArray(data)) return { ok: false, reason: 'invalid-data' };
+      console.log('[API Sync] Enviando ' + sheetName + ' (' + data.length + ' registros)');
+      const result = await apiCall({ action: 'syncSheet', sheet: sheetName, data: data });
+      if (result.ok) {
+        console.log('[API Sync] ' + sheetName + ' OK');
+      } else {
+        console.warn('[API Sync] Falha em ' + sheetName + ':', result.reason, result.error || '');
       }
+      return result;
     }
 
-    // Chamada generica para a API com timeout
+    // Chamada genérica para a API com timeout.
+    // Retorna objeto: { ok: true, data } em sucesso,
+    // { ok: false, reason: 'network'|'timeout'|'server'|'parse', error: string } em falha.
     async function apiCall(payload, timeoutMs = 30000) {
-      if (!API_URL) return null;
+      if (!API_URL) return { ok: false, reason: 'no-api', error: 'API_URL não configurada', data: null };
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+      let response;
       try {
-        const response = await fetch(API_URL, {
+        response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify(payload),
           signal: controller.signal
         });
-        clearTimeout(timer);
-        const result = await response.json();
-        if (result.success) {
-          return result.data;
-        } else {
-          console.warn('[API]', result.error);
-          return null;
-        }
       } catch (err) {
         clearTimeout(timer);
         if (err.name === 'AbortError') {
-          console.warn('[API] Timeout apos ' + (timeoutMs/1000) + 's para:', payload.action);
-        } else {
-          console.warn('[API] Erro de conexao:', err.message);
+          console.warn('[API] Timeout após ' + (timeoutMs/1000) + 's para:', payload.action);
+          return { ok: false, reason: 'timeout', error: 'Timeout', data: null };
         }
-        return null;
+        console.warn('[API] Erro de rede:', err.message);
+        return { ok: false, reason: 'network', error: err.message, data: null };
       }
+      clearTimeout(timer);
+
+      let result;
+      try {
+        result = await response.json();
+      } catch (err) {
+        console.warn('[API] Resposta inválida:', err.message);
+        return { ok: false, reason: 'parse', error: err.message, data: null };
+      }
+
+      if (result && result.success) {
+        return { ok: true, data: result.data };
+      }
+      console.warn('[API] Rejeição do servidor:', result && result.error);
+      return { ok: false, reason: 'server', error: (result && result.error) || 'erro desconhecido', data: null };
     }
 
     // Busca dados da API e atualiza cache local
@@ -2238,38 +2262,39 @@
 
       // Buscar uma aba por vez para evitar sobrecarregar o Apps Script
       for (const sheet of sheets) {
-        try {
-          const data = await apiCall({ action: 'getAll', sheet: sheet });
-          if (data !== null) {
-            let processedData = data;
-            // Normaliza datas dos slots
-            if (sheet === 'Slots') {
-              processedData = data.map(s => ({ ...s, date: normalizeDate(s.date) }));
-            }
-            // Nao sobrescreve missoes locais com vazio
-            if (sheet === 'Missoes' && processedData.length === 0) continue;
-
-            // PROTECAO: nao sobrescreve local com menos registros (evita perda de dados)
-            const localKey = storageMap[sheet];
-            const localData = JSON.parse(localStorage.getItem(localKey) || '[]');
-            if (Array.isArray(localData) && localData.length > processedData.length && processedData.length === 0) {
-              console.warn('[API] ' + sheet + ': Sheets vazio mas local tem ' + localData.length + ' registros. Enviando local para Sheets.');
-              syncToApi(sheet, localData);
-              successCount++;
-              continue;
-            }
-            if (Array.isArray(localData) && localData.length > processedData.length + 2) {
-              console.warn('[API] ' + sheet + ': Sheets tem ' + processedData.length + ' mas local tem ' + localData.length + '. Mantendo local e enviando para Sheets.');
-              syncToApi(sheet, localData);
-              successCount++;
-              continue;
-            }
-
-            localStorage.setItem(localKey, JSON.stringify(processedData));
-            successCount++;
+        const res = await apiCall({ action: 'getAll', sheet: sheet });
+        if (!res.ok) {
+          console.warn('[API] Falha ao buscar ' + sheet + ' (' + res.reason + '):', res.error);
+          continue;
+        }
+        const data = res.data;
+        if (data !== null && data !== undefined) {
+          let processedData = data;
+          // Normaliza datas dos slots
+          if (sheet === 'Slots') {
+            processedData = data.map(s => ({ ...s, date: normalizeDate(s.date) }));
           }
-        } catch (err) {
-          console.warn('[API] Erro ao buscar ' + sheet + ':', err.message);
+          // Não sobrescreve missoes locais com vazio
+          if (sheet === 'Missoes' && processedData.length === 0) continue;
+
+          // PROTEÇÃO: não sobrescreve local com menos registros (evita perda de dados)
+          const localKey = storageMap[sheet];
+          const localData = JSON.parse(localStorage.getItem(localKey) || '[]');
+          if (Array.isArray(localData) && localData.length > processedData.length && processedData.length === 0) {
+            console.warn('[API] ' + sheet + ': Sheets vazio mas local tem ' + localData.length + ' registros. Enviando local para Sheets.');
+            syncToApi(sheet, localData);
+            successCount++;
+            continue;
+          }
+          if (Array.isArray(localData) && localData.length > processedData.length + 2) {
+            console.warn('[API] ' + sheet + ': Sheets tem ' + processedData.length + ' mas local tem ' + localData.length + '. Mantendo local e enviando para Sheets.');
+            syncToApi(sheet, localData);
+            successCount++;
+            continue;
+          }
+
+          localStorage.setItem(localKey, JSON.stringify(processedData));
+          successCount++;
         }
       }
 
@@ -2279,23 +2304,24 @@
       if (successCount > 0) {
         showToast('Dados sincronizados! (' + successCount + '/' + sheets.length + ' abas)', 'success');
       } else {
-        showToast('Falha na sincronizacao. Usando dados locais.', 'error');
+        showToast('Falha na sincronização. Usando dados locais.', 'error');
       }
-      console.log('[API] Sincronizacao completa: ' + successCount + '/' + sheets.length);
+      console.log('[API] Sincronização completa: ' + successCount + '/' + sheets.length);
     }
 
-    // Envia notificacao por e-mail via API
+    // Envia notificação por e-mail via API
     async function sendEmailNotification(type, params) {
       if (!API_URL) {
         console.log('[EMAIL SIMULADO] Tipo:', type, 'Params:', params);
-        return;
+        return { ok: false, reason: 'no-api' };
       }
-      try {
-        await apiCall({ action: type, ...params });
+      const res = await apiCall({ action: type, ...params });
+      if (res.ok) {
         console.log('[EMAIL] Enviado:', type);
-      } catch (err) {
-        console.warn('[EMAIL] Falha ao enviar:', err.message);
+      } else {
+        console.warn('[EMAIL] Falha ao enviar (' + res.reason + '):', res.error);
       }
+      return res;
     }
 
     // =============================================
@@ -2385,18 +2411,20 @@
         localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify([]));
       }
 
-      // Carrega missoes seed se ainda nao existir
+      // Carrega missoes seed se ainda nao existir (marca como "seed" para evitar re-sync desnecessário)
+      let seedApenasCarregado = false;
       if (!getData(STORAGE_KEYS.missoes) || (getData(STORAGE_KEYS.missoes) || []).length === 0) {
         localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(MISSOES_SEED));
+        seedApenasCarregado = true;
       }
 
       // Tenta sincronizar com API se configurada
       if (API_URL) {
         syncFromApi().then(() => {
-          // Apos sync, se Missoes veio vazio do Sheets, envia seed
+          // Só reenvia missoes se houve alteração real (não apenas seed inicial)
+          // ou se o servidor voltou vazio e o local tem dados.
           const missoesLocal = getData(STORAGE_KEYS.missoes) || [];
-          const missoesKey = STORAGE_KEYS.missoes;
-          if (missoesLocal.length > 0) {
+          if (missoesLocal.length > 0 && !seedApenasCarregado) {
             syncToApi('Missoes', missoesLocal);
           }
 
@@ -3021,7 +3049,7 @@
       // Verifica se e-mail ja esta cadastrado
       const profs = getData(STORAGE_KEYS.professionals) || [];
       if (profs.some(p => p.email.toLowerCase() === email.toLowerCase())) {
-        errorDiv.textContent = 'Este e-mail ja esta cadastrado. Se esqueceu sua senha, entre em contato com a coordenacao.';
+        errorDiv.textContent = 'Este e-mail já está cadastrado. Se esqueceu sua senha, entre em contato com a coordenação.';
         errorDiv.style.display = 'block';
         return;
       }
@@ -3116,7 +3144,14 @@
         errorDiv.style.display = 'none';
         document.getElementById('loginPassword').value = '';
 
-        // Verifica se ja aceitou o termo de voluntariado
+        // Se a senha ainda é temporária, força troca antes de prosseguir
+        if (prof.mustChangePassword) {
+          showView('professional');
+          setTimeout(() => forcarTrocaSenhaProfissional(), 200);
+          return;
+        }
+
+        // Verifica se já aceitou o termo de voluntariado
         if (!prof.termoAceitoEm) {
           showTermoVoluntariado();
         } else {
@@ -3134,6 +3169,60 @@
         errorDiv.style.display = 'block';
         document.getElementById('loginPassword').value = '';
       }
+    }
+
+    // Força troca da senha inicial do profissional (mustChangePassword=true)
+    function forcarTrocaSenhaProfissional() {
+      if (!loggedProfessional) return;
+      const body = `
+        <div style="background:#fef3c7;border-left:4px solid #d97706;padding:0.8rem;margin-bottom:1rem;border-radius:6px;">
+          <p style="margin:0;font-size:0.9rem;color:#92400e;"><strong>⚠ Troca de senha obrigatória</strong></p>
+          <p style="margin:0.3rem 0 0 0;font-size:0.85rem;color:#92400e;">Você está usando uma senha temporária. Por segurança, defina uma senha pessoal antes de continuar.</p>
+        </div>
+        <div class="form-group">
+          <label>Nova senha (mínimo 8 caracteres)</label>
+          <input type="password" id="forcedProfPass" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label>Confirme a nova senha</label>
+          <input type="password" id="forcedProfPass2" autocomplete="new-password" />
+        </div>`;
+      showDynamicModal('Definir nova senha', body, 'Salvar nova senha', function () {
+        const p1 = document.getElementById('forcedProfPass').value.trim();
+        const p2 = document.getElementById('forcedProfPass2').value.trim();
+        if (!p1 || p1.length < 8) {
+          showToast('A nova senha deve ter pelo menos 8 caracteres.', 'error');
+          return;
+        }
+        if (p1 !== p2) {
+          showToast('As senhas não conferem.', 'error');
+          return;
+        }
+        const profs = getData(STORAGE_KEYS.professionals) || [];
+        const idx = profs.findIndex(p => p.id === loggedProfessional.id);
+        if (idx !== -1) {
+          profs[idx].password = p1;
+          profs[idx].mustChangePassword = false;
+          profs[idx].passwordChangedAt = new Date().toISOString();
+          loggedProfessional = profs[idx];
+          setData(STORAGE_KEYS.professionals, profs);
+          syncToApi('Profissionais', profs);
+        }
+        closeDynamicModal();
+        // Continua o fluxo normal de login
+        if (!loggedProfessional.termoAceitoEm) {
+          showTermoVoluntariado();
+        } else {
+          showToast(`Senha atualizada! Bem-vindo(a), ${loggedProfessional.name}!`, 'success');
+        }
+      });
+      setTimeout(() => {
+        const footer = document.querySelector('#dynamicModal .modal-footer');
+        if (footer) {
+          const btns = footer.querySelectorAll('button');
+          if (btns.length >= 2) btns[0].style.display = 'none';
+        }
+      }, 10);
     }
 
     function professionalLogout() {
@@ -3252,7 +3341,7 @@
           showToast('A nova senha deve ter pelo menos 6 caracteres.', 'error'); return;
         }
         if (newPass !== confirmPass) {
-          showToast('As senhas nao coincidem.', 'error'); return;
+          showToast('As senhas não coincidem.', 'error'); return;
         }
 
         // Atualiza localmente
@@ -3282,8 +3371,8 @@
       const today = formatDate(new Date());
 
       // Welcome
-      document.getElementById('dashWelcome').textContent = `Ola, ${loggedProfessional.name}!`;
-      document.getElementById('dashSubtitle').textContent = `${loggedProfessional.specialty} | Gerencie seus horarios e atendimentos`;
+      document.getElementById('dashWelcome').textContent = `Olá, ${loggedProfessional.name}!`;
+      document.getElementById('dashSubtitle').textContent = `${loggedProfessional.specialty} | Gerencie seus horários e atendimentos`;
 
       // Stats
       const activeBookings = myBookings.filter(b => b.status === 'confirmed');
@@ -3489,7 +3578,7 @@
       const hasBooking = bookings.some(b => b.slotId === slotId && b.status === 'confirmed');
 
       if (hasBooking) {
-        if (!confirm('Este horario possui um agendamento ativo. Deseja cancelar o agendamento e remover o horario?')) return;
+        if (!confirm('Este horário possui um agendamento ativo. Deseja cancelar o agendamento e remover o horário?')) return;
         // Cancel the booking
         const updatedBookings = bookings.map(b => {
           if (b.slotId === slotId && b.status === 'confirmed') {
@@ -3529,7 +3618,7 @@
           <div class="empty-state">
             <div class="empty-state-icon">&#128197;</div>
             <p>Você ainda não cadastrou horários disponíveis.</p>
-            <p style="font-size: 0.85rem; color: var(--text-light);">Use o formulario acima para adicionar seus horarios de atendimento.</p>
+            <p style="font-size: 0.85rem; color: var(--text-light);">Use o formulário acima para adicionar seus horários de atendimento.</p>
           </div>`;
         return;
       }
@@ -3566,7 +3655,7 @@
       html += '</tbody></table></div>';
 
       if (pastSlots.length > 0) {
-        html += `<p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-light);">${pastSlots.length} horario(s) passado(s) nao exibidos.</p>`;
+        html += `<p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-light);">${pastSlots.length} horário(s) passado(s) não exibidos.</p>`;
       }
 
       document.getElementById('slotsTableContainer').innerHTML = html;
@@ -3615,30 +3704,31 @@
         const sessionIndex = allPatientSessions.findIndex(b => b.id === booking.id) + 1;
         const isReturn = booking.isReturn ? '<span class="status-tag booked" style="font-size: 0.7rem;">Retorno</span>' : '';
 
+        const typeLbl = booking.type === 'missionario' ? 'Missionário' : (booking.type === 'formador' ? 'Agente Formativo' : '—');
         html += `
           <div class="booking-card">
             <div class="booking-card-header">
-              <h4>${booking.patientName}</h4>
+              <h4>${esc(booking.patientName)}</h4>
               <div>
-                <span class="status-tag available">Sessao ${sessionIndex}/4</span>
+                <span class="status-tag available">Sessão ${sessionIndex}/4</span>
                 ${isReturn}
-                <span class="status-tag booked">${booking.type === 'missionario' ? 'Missionario' : 'Agente Formativo'}</span>
+                <span class="status-tag booked">${typeLbl}</span>
               </div>
             </div>
             <div class="booking-card-details">
               <div class="booking-card-detail"><strong>Data:</strong> ${slot ? formatDateBR(slot.date) : '?'}</div>
-              <div class="booking-card-detail"><strong>Horario:</strong> ${slot ? slot.time : '?'}</div>
-              <div class="booking-card-detail"><strong>Duracao:</strong> ${slot ? slot.duration + ' min' : '?'}</div>
-              <div class="booking-card-detail"><strong>Telefone:</strong> ${booking.patientPhone}</div>
-              <div class="booking-card-detail"><strong>E-mail:</strong> ${booking.patientEmail}</div>
-              <div class="booking-card-detail"><strong>Missao:</strong> ${booking.missao || '-'} - ${booking.casaComunidade || '-'}</div>
+              <div class="booking-card-detail"><strong>Horário:</strong> ${slot ? esc(slot.time) : '?'}</div>
+              <div class="booking-card-detail"><strong>Duração:</strong> ${slot ? slot.duration + ' min' : '?'}</div>
+              <div class="booking-card-detail"><strong>Telefone:</strong> ${esc(booking.patientPhone)}</div>
+              <div class="booking-card-detail"><strong>E-mail:</strong> ${esc(booking.patientEmail)}</div>
+              <div class="booking-card-detail"><strong>Missão:</strong> ${esc(booking.missao) || '-'} - ${esc(booking.casaComunidade) || '-'}</div>
               <div class="booking-card-detail"><strong>Agendado em:</strong> ${new Date(booking.createdAt).toLocaleDateString('pt-BR')}</div>
             </div>
             <div class="booking-card-actions">
-              <button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${booking.id}')">Ver Anamnese</button>
-              <button class="btn btn-sm btn-success" onclick="openCompleteModal('${booking.id}')">Concluir Sessao</button>
-              <button class="btn btn-sm" onclick="openReturnModal('${booking.id}')">Agendar Retorno</button>
-              <button class="btn btn-sm btn-danger" onclick="cancelBooking('${booking.id}')">Cancelar</button>
+              <button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${esc(booking.id)}')">Ver Anamnese</button>
+              <button class="btn btn-sm btn-success" onclick="openCompleteModal('${esc(booking.id)}')">Concluir Sessão</button>
+              <button class="btn btn-sm" onclick="openReturnModal('${esc(booking.id)}')">Agendar Retorno</button>
+              <button class="btn btn-sm btn-danger" onclick="cancelBooking('${esc(booking.id)}')">Cancelar</button>
             </div>
           </div>`;
       }
@@ -3667,12 +3757,13 @@
       const sessionNum = patientSessions.length;
 
       document.getElementById('completeModalSubtitle').textContent = booking.patientName;
+      const typeLblCompl = booking.type === 'missionario' ? 'Missionário' : (booking.type === 'formador' ? 'Agente Formativo' : '—');
       document.getElementById('completePatientInfo').innerHTML = `
-        <h3>Resumo da Sessao</h3>
-        <div class="booking-detail"><span>Paciente:</span><span>${booking.patientName}</span></div>
-        <div class="booking-detail"><span>Data:</span><span>${slot ? formatDateBR(slot.date) + ' as ' + slot.time : '?'}</span></div>
+        <h3>Resumo da Sessão</h3>
+        <div class="booking-detail"><span>Paciente:</span><span>${esc(booking.patientName)}</span></div>
+        <div class="booking-detail"><span>Data:</span><span>${slot ? formatDateBR(slot.date) + ' às ' + esc(slot.time) : '?'}</span></div>
         <div class="booking-detail"><span>Sessão nº:</span><span>${sessionNum} de 4</span></div>
-        <div class="booking-detail"><span>Tipo:</span><span>${booking.type === 'missionario' ? 'Missionario' : 'Agente Formativo'}</span></div>
+        <div class="booking-detail"><span>Tipo:</span><span>${typeLblCompl}</span></div>
       `;
 
       // Reset form
@@ -3943,9 +4034,9 @@
 
       const select = document.getElementById('returnSlotSelect');
       if (myAvailableSlots.length === 0) {
-        select.innerHTML = '<option value="">Nenhum horario disponivel - crie um primeiro</option>';
+        select.innerHTML = '<option value="">Nenhum horário disponível - crie um primeiro</option>';
       } else {
-        select.innerHTML = '<option value="">-- Selecione um horario --</option>';
+        select.innerHTML = '<option value="">-- Selecione um horário --</option>';
         for (const s of myAvailableSlots) {
           select.innerHTML += `<option value="${s.id}">${getDayNameFull(s.date)}, ${formatDateBR(s.date)} as ${s.time} (${s.duration}min)</option>`;
         }
@@ -3979,7 +4070,7 @@
     function confirmReturnBooking() {
       const slotId = document.getElementById('returnSlotSelect').value;
       if (!slotId) {
-        showToast('Selecione um horario para o retorno.', 'error');
+        showToast('Selecione um horário para o retorno.', 'error');
         return;
       }
 
@@ -3995,7 +4086,7 @@
       // Check if slot still available
       const alreadyBooked = bookings.some(b => b.slotId === slotId && b.status !== 'cancelled');
       if (alreadyBooked) {
-        showToast('Este horario acabou de ser ocupado. Selecione outro.', 'error');
+        showToast('Este horário acabou de ser ocupado. Selecione outro.', 'error');
         return;
       }
 
@@ -4054,6 +4145,108 @@
       renderDashboard();
     }
 
+    // Exporta agendamentos filtrados para CSV (admin)
+    function exportBookingsCSV() {
+      if (!loggedAdmin) return;
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+
+      const statusFilter = document.getElementById('filterBookingStatus')?.value || '';
+      const profFilter = document.getElementById('filterBookingProf')?.value || '';
+      const dateStart = document.getElementById('filterBookingDateStart')?.value || '';
+      const dateEnd = document.getElementById('filterBookingDateEnd')?.value || '';
+
+      let filtered = [...bookings];
+      if (statusFilter) filtered = filtered.filter(b => b.status === statusFilter);
+      if (profFilter) filtered = filtered.filter(b => b.profId === profFilter);
+      if (dateStart || dateEnd) {
+        filtered = filtered.filter(b => {
+          const slot = slots.find(s => s.id === b.slotId);
+          if (!slot || !slot.date) return false;
+          if (dateStart && slot.date < dateStart) return false;
+          if (dateEnd && slot.date > dateEnd) return false;
+          return true;
+        });
+      }
+
+      if (filtered.length === 0) {
+        showToast('Nenhum agendamento para exportar.', 'error');
+        return;
+      }
+
+      const statusMap = { confirmed: 'Confirmado', completed: 'Realizado', cancelled: 'Cancelado' };
+      const typeMap = { missionario: 'Missionário', formador: 'Agente Formativo' };
+
+      // CSV com BOM UTF-8 para Excel abrir com acentos corretos
+      const csvEscape = (v) => {
+        if (v === null || v === undefined) return '';
+        const s = String(v).replace(/"/g, '""');
+        return /[",;\n\r]/.test(s) ? `"${s}"` : s;
+      };
+
+      const header = ['Data', 'Horário', 'Status', 'Tipo', 'Paciente', 'E-mail', 'Telefone', 'Missão', 'Casa Comunitária', 'Profissional', 'Próximo passo', 'Criado em'];
+      const rows = filtered.map(b => {
+        const slot = slots.find(s => s.id === b.slotId);
+        const prof = profs.find(p => p.id === b.profId);
+        return [
+          slot ? slot.date : '',
+          slot ? slot.time : '',
+          statusMap[b.status] || b.status || '',
+          typeMap[b.type] || b.type || '',
+          b.patientName || '',
+          b.patientEmail || '',
+          b.patientPhone || '',
+          b.missao || '',
+          b.casaComunidade || '',
+          prof ? prof.name : '',
+          b.nextStep ? (typeof getNextStepLabel === 'function' ? getNextStepLabel(b.nextStep) : b.nextStep) : '',
+          b.createdAt ? new Date(b.createdAt).toLocaleString('pt-BR') : ''
+        ].map(csvEscape).join(';');
+      });
+
+      const csv = '\ufeff' + header.map(csvEscape).join(';') + '\n' + rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `agendamentos-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`${filtered.length} agendamento(s) exportado(s).`, 'success');
+    }
+
+    // Admin pode cancelar um agendamento (ex.: pedido por telefone)
+    function adminCancelBooking(bookingId) {
+      if (!loggedAdmin) return;
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const booking = bookings.find(b => b.id === bookingId);
+      if (!booking) return;
+      if (booking.status !== 'confirmed') {
+        showToast('Só é possível cancelar agendamentos confirmados.', 'error');
+        return;
+      }
+      const reason = prompt(`Cancelar o agendamento de "${booking.patientName}"?\n\nInforme o motivo (será registrado no histórico):`, '');
+      if (reason === null) return;
+      if (!reason.trim()) {
+        showToast('Informe um motivo para o cancelamento.', 'error');
+        return;
+      }
+      const updated = bookings.map(b => b.id === bookingId ? {
+        ...b,
+        status: 'cancelled',
+        cancelledAt: new Date().toISOString(),
+        cancelledBy: loggedAdmin.email,
+        cancelReason: reason.trim()
+      } : b);
+      setData(STORAGE_KEYS.bookings, updated);
+      syncToApi('Agendamentos', updated);
+      showToast('Agendamento cancelado.', 'info');
+      renderAdminDashboard();
+    }
+
     // ===== ANAMNESIS VIEW =====
     function viewAnamnesis(bookingId) {
       const bookings = getData(STORAGE_KEYS.bookings) || [];
@@ -4066,41 +4259,42 @@
       document.getElementById('anamnesisModalSubtitle').textContent = booking.patientName;
 
       const a = booking.anamnesis || {};
-      const prevTherapyMap = { 'nao': 'Nao', 'sim_passado': 'Sim, no passado', 'sim_atual': 'Sim, atualmente' };
-      const medMap = { 'nao': 'Nao', 'sim': 'Sim' };
+      const prevTherapyMap = { 'nao': 'Não', 'sim_passado': 'Sim, no passado', 'sim_atual': 'Sim, atualmente' };
+      const medMap = { 'nao': 'Não', 'sim': 'Sim' };
+      const typeMap = { missionario: 'Missionário', formador: 'Agente Formativo' };
 
       document.getElementById('anamnesisContent').innerHTML = `
         <div style="margin-bottom: 1.5rem;">
           <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Dados do Paciente</h3>
           <div class="booking-card-details" style="margin-bottom: 0;">
-            <div class="booking-card-detail"><strong>Nome:</strong> ${booking.patientName}</div>
-            <div class="booking-card-detail"><strong>E-mail:</strong> ${booking.patientEmail}</div>
-            <div class="booking-card-detail"><strong>Telefone:</strong> ${booking.patientPhone}</div>
-            <div class="booking-card-detail"><strong>Tipo:</strong> ${booking.type === 'missionario' ? 'Missionario' : 'Agente Formativo'}</div>
-            <div class="booking-card-detail"><strong>Data da consulta:</strong> ${slot ? formatDateBR(slot.date) + ' as ' + slot.time : '?'}</div>
+            <div class="booking-card-detail"><strong>Nome:</strong> ${esc(booking.patientName)}</div>
+            <div class="booking-card-detail"><strong>E-mail:</strong> ${esc(booking.patientEmail)}</div>
+            <div class="booking-card-detail"><strong>Telefone:</strong> ${esc(booking.patientPhone)}</div>
+            <div class="booking-card-detail"><strong>Tipo:</strong> ${typeMap[booking.type] || (booking.type ? esc(booking.type) : '—')}</div>
+            <div class="booking-card-detail"><strong>Data da consulta:</strong> ${slot ? formatDateBR(slot.date) + ' às ' + esc(slot.time) : '?'}</div>
           </div>
         </div>
 
         <div class="anamnesis-view">
           <h4>Pré-Anamnese</h4>
-          <div class="anamnesis-field"><label>Missao:</label><p>${booking.missao || '-'}</p></div>
-          <div class="anamnesis-field"><label>Casa Comunitaria:</label><p>${booking.casaComunidade || '-'}</p></div>
-          <div class="anamnesis-field"><label>Cidade/Estado:</label><p>${a.city || '-'}</p></div>
-          <div class="anamnesis-field"><label>Tempo na Comunidade:</label><p>${a.timeCommunity || '-'}</p></div>
-          <div class="anamnesis-field"><label>Motivo da procura:</label><p>${a.reason || '-'}</p></div>
-          <div class="anamnesis-field"><label>Acompanhamento psicologico anterior:</label><p>${prevTherapyMap[a.previousTherapy] || '-'}</p></div>
+          <div class="anamnesis-field"><label>Missão:</label><p>${esc(booking.missao) || '-'}</p></div>
+          <div class="anamnesis-field"><label>Casa Comunitária:</label><p>${esc(booking.casaComunidade) || '-'}</p></div>
+          <div class="anamnesis-field"><label>Cidade/Estado:</label><p>${esc(a.city) || '-'}</p></div>
+          <div class="anamnesis-field"><label>Tempo na Comunidade:</label><p>${esc(a.timeCommunity) || '-'}</p></div>
+          <div class="anamnesis-field"><label>Motivo da procura:</label><p>${esc(a.reason) || '-'}</p></div>
+          <div class="anamnesis-field"><label>Acompanhamento psicológico anterior:</label><p>${prevTherapyMap[a.previousTherapy] || '-'}</p></div>
           <div class="anamnesis-field"><label>Uso de medicação psiquiátrica:</label><p>${medMap[a.medication] || '-'}</p></div>
-          ${a.medication === 'sim' ? `<div class="anamnesis-field"><label>Medicacao(oes):</label><p>${a.medicationDetail || '-'}</p></div>` : ''}
-          <div class="anamnesis-field"><label>Observações adicionais:</label><p>${a.notes || '-'}</p></div>
+          ${a.medication === 'sim' ? `<div class="anamnesis-field"><label>Medicação(ões):</label><p>${esc(a.medicationDetail) || '-'}</p></div>` : ''}
+          <div class="anamnesis-field"><label>Observações adicionais:</label><p>${esc(a.notes) || '-'}</p></div>
         </div>
 
         ${booking.nextStep ? `
         <div style="margin-top: 1.5rem; padding: 1.2rem; background: #eff6ff; border: 2px solid var(--primary-light); border-radius: 12px;">
-          <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Desfecho da Sessao</h4>
-          <div class="anamnesis-field"><label>Proximo passo:</label><p><strong>${getNextStepLabel(booking.nextStep)}</strong></p></div>
-          ${booking.patientMessage ? `<div class="anamnesis-field"><label>Mensagem ao paciente:</label><p>${booking.patientMessage}</p></div>` : ''}
-          ${booking.internalNotes ? `<div class="anamnesis-field"><label>Notas internas (coordenacao):</label><p>${booking.internalNotes}</p></div>` : ''}
-          ${booking.completedAt ? `<div class="anamnesis-field"><label>Concluido em:</label><p>${new Date(booking.completedAt).toLocaleDateString('pt-BR')}</p></div>` : ''}
+          <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Desfecho da Sessão</h4>
+          <div class="anamnesis-field"><label>Próximo passo:</label><p><strong>${esc(getNextStepLabel(booking.nextStep))}</strong></p></div>
+          ${booking.patientMessage ? `<div class="anamnesis-field"><label>Mensagem ao paciente:</label><p>${esc(booking.patientMessage)}</p></div>` : ''}
+          ${booking.internalNotes ? `<div class="anamnesis-field"><label>Notas internas (coordenação):</label><p>${esc(booking.internalNotes)}</p></div>` : ''}
+          ${booking.completedAt ? `<div class="anamnesis-field"><label>Concluído em:</label><p>${new Date(booking.completedAt).toLocaleDateString('pt-BR')}</p></div>` : ''}
         </div>
         ` : ''}
       `;
@@ -4137,21 +4331,22 @@
         const statusClass = booking.status === 'completed' ? 'completed' : 'cancelled';
         const statusLabel = booking.status === 'completed' ? 'Realizado' : 'Cancelado';
 
+        const typeLblHist = booking.type === 'missionario' ? 'Missionário' : (booking.type === 'formador' ? 'Agente Formativo' : '—');
         html += `
           <div class="booking-card" style="border-left-color: ${booking.status === 'completed' ? 'var(--success)' : 'var(--error)'};">
             <div class="booking-card-header">
-              <h4>${booking.patientName}</h4>
+              <h4>${esc(booking.patientName)}</h4>
               <span class="status-tag ${statusClass}">${statusLabel}</span>
             </div>
             <div class="booking-card-details">
               <div class="booking-card-detail"><strong>Data:</strong> ${slot ? formatDateBR(slot.date) : '?'}</div>
-              <div class="booking-card-detail"><strong>Horario:</strong> ${slot ? slot.time : '?'}</div>
-              <div class="booking-card-detail"><strong>Tipo:</strong> ${booking.type === 'missionario' ? 'Missionario' : 'Agente Formativo'}</div>
+              <div class="booking-card-detail"><strong>Horário:</strong> ${slot ? esc(slot.time) : '?'}</div>
+              <div class="booking-card-detail"><strong>Tipo:</strong> ${typeLblHist}</div>
             </div>
             <div class="booking-card-actions">
-              <button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${booking.id}')">Ver Anamnese</button>
-              ${booking.status === 'completed' && booking.nextStep !== 'resolved' ? `<button class="btn btn-sm" onclick="openReturnModal('${booking.id}')">Agendar Retorno</button>` : ''}
-              ${booking.nextStep ? `<span class="status-tag ${booking.nextStep === 'resolved' ? 'available' : booking.nextStep === 'urgency' ? 'cancelled' : 'booked'}" style="margin-left: 0.3rem;">${getNextStepLabel(booking.nextStep)}</span>` : ''}
+              <button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${esc(booking.id)}')">Ver Anamnese</button>
+              ${booking.status === 'completed' && booking.nextStep !== 'resolved' ? `<button class="btn btn-sm" onclick="openReturnModal('${esc(booking.id)}')">Agendar Retorno</button>` : ''}
+              ${booking.nextStep ? `<span class="status-tag ${booking.nextStep === 'resolved' ? 'available' : booking.nextStep === 'urgency' ? 'cancelled' : 'booked'}" style="margin-left: 0.3rem;">${esc(getNextStepLabel(booking.nextStep))}</span>` : ''}
             </div>
           </div>`;
       }
@@ -4587,13 +4782,30 @@
     // BACKUP E RESTAURACAO
     // =============================================
     function exportarBackup() {
+      if (!requireSuperAdmin()) return;
+      // Remove senhas antes de exportar. O backup pode ser aberto em qualquer editor de texto.
+      const admins = (getData('plantao_admins') || []).map(a => {
+        const copy = Object.assign({}, a);
+        delete copy.password;
+        copy._passwordRedacted = true;
+        return copy;
+      });
+      const profs = (getData(STORAGE_KEYS.professionals) || []).map(p => {
+        const copy = Object.assign({}, p);
+        if ('password' in copy) {
+          delete copy.password;
+          copy._passwordRedacted = true;
+        }
+        return copy;
+      });
       const backup = {
         exportadoEm: new Date().toISOString(),
-        versao: '1.0',
-        profissionais: getData(STORAGE_KEYS.professionals) || [],
+        versao: '1.1',
+        _aviso: 'Senhas foram removidas deste backup. Ao restaurar, usuários manterão as senhas existentes; novos usuários precisarão ter senhas redefinidas manualmente.',
+        profissionais: profs,
         slots: getData(STORAGE_KEYS.slots) || [],
         agendamentos: getData(STORAGE_KEYS.bookings) || [],
-        admins: getData('plantao_admins') || [],
+        admins: admins,
         missoes: getData(STORAGE_KEYS.missoes) || []
       };
 
@@ -4612,6 +4824,7 @@
     }
 
     function restaurarBackup(input) {
+      if (!requireSuperAdmin()) { input.value = ''; return; }
       const file = input.files[0];
       if (!file) return;
 
@@ -4621,7 +4834,7 @@
           const backup = JSON.parse(e.target.result);
 
           if (!backup.profissionais && !backup.admins) {
-            showToast('Arquivo invalido: nao parece um backup do sistema.', 'error');
+            showToast('Arquivo inválido: não parece um backup do sistema.', 'error');
             return;
           }
 
@@ -4631,22 +4844,81 @@
           const admins = backup.admins || [];
           const missoes = backup.missoes || [];
 
-          if (!confirm(`Restaurar backup de ${backup.exportadoEm ? new Date(backup.exportadoEm).toLocaleString('pt-BR') : 'data desconhecida'}?\n\n• ${profs.length} profissionais\n• ${slots.length} horarios\n• ${bookings.length} agendamentos\n• ${admins.length} administradores\n\nOs dados atuais serao substituidos.`)) return;
+          // Preserva senhas existentes ao mesclar (backups recentes não carregam senhas)
+          const currentAdmins = getData('plantao_admins') || [];
+          const currentAdminMap = {};
+          currentAdmins.forEach(a => { currentAdminMap[a.id] = a; });
+          const mergedAdmins = admins.map(a => {
+            const copy = Object.assign({}, a);
+            delete copy._passwordRedacted;
+            if (!copy.password) {
+              if (currentAdminMap[copy.id] && currentAdminMap[copy.id].password) {
+                copy.password = currentAdminMap[copy.id].password;
+              } else {
+                // Novo admin sem senha: exige redefinição
+                copy.password = 'temp-' + Math.random().toString(36).slice(2, 10);
+                copy.mustChangePassword = true;
+              }
+            }
+            return copy;
+          });
 
-          if (profs.length > 0) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(profs));
+          // Garante que o admin logado não será removido (evita lock-out)
+          if (loggedAdmin && !mergedAdmins.some(a => a.id === loggedAdmin.id)) {
+            mergedAdmins.push(loggedAdmin);
+          }
+          // Garante pelo menos um super_admin
+          const hasSuper = mergedAdmins.some(a => a.role === 'super_admin');
+          if (!hasSuper) {
+            showToast('O backup não contém Super Administrador. Restauração cancelada para evitar bloqueio de acesso.', 'error');
+            return;
+          }
+
+          const currentProfs = getData(STORAGE_KEYS.professionals) || [];
+          const currentProfMap = {};
+          currentProfs.forEach(p => { currentProfMap[p.id] = p; });
+          const mergedProfs = profs.map(p => {
+            const copy = Object.assign({}, p);
+            delete copy._passwordRedacted;
+            if (('password' in p || currentProfMap[p.id]) && !copy.password && currentProfMap[p.id]) {
+              copy.password = currentProfMap[p.id].password;
+            }
+            return copy;
+          });
+
+          // Diff preview
+          const diff = [
+            `Profissionais: ${currentProfs.length} → ${mergedProfs.length}`,
+            `Horários: ${(getData(STORAGE_KEYS.slots) || []).length} → ${slots.length}`,
+            `Agendamentos: ${(getData(STORAGE_KEYS.bookings) || []).length} → ${bookings.length}`,
+            `Administradores: ${currentAdmins.length} → ${mergedAdmins.length}`,
+            `Missões: ${(getData(STORAGE_KEYS.missoes) || []).length} → ${missoes.length}`
+          ].join('\n');
+
+          const dataBackup = backup.exportadoEm ? new Date(backup.exportadoEm).toLocaleString('pt-BR') : 'data desconhecida';
+          const confirmacao = prompt(
+            `Confirmar restauração do backup de ${dataBackup}?\n\n${diff}\n\n⚠ Os dados atuais serão substituídos.\n\nDigite RESTAURAR (maiúsculas) para confirmar:`,
+            ''
+          );
+          if (confirmacao !== 'RESTAURAR') {
+            showToast('Restauração cancelada.', 'info');
+            return;
+          }
+
+          if (mergedProfs.length > 0) localStorage.setItem(STORAGE_KEYS.professionals, JSON.stringify(mergedProfs));
           if (slots.length > 0) localStorage.setItem(STORAGE_KEYS.slots, JSON.stringify(slots));
           if (bookings.length > 0) localStorage.setItem(STORAGE_KEYS.bookings, JSON.stringify(bookings));
-          if (admins.length > 0) localStorage.setItem('plantao_admins', JSON.stringify(admins));
+          if (mergedAdmins.length > 0) localStorage.setItem('plantao_admins', JSON.stringify(mergedAdmins));
           if (missoes.length > 0) localStorage.setItem(STORAGE_KEYS.missoes, JSON.stringify(missoes));
 
           showToast('Backup restaurado! Reenviando para o servidor...', 'success');
 
           // Reenviar tudo para o Sheets
           setTimeout(() => {
-            if (profs.length > 0) syncToApi('Profissionais', profs);
+            if (mergedProfs.length > 0) syncToApi('Profissionais', mergedProfs);
             if (slots.length > 0) syncToApi('Slots', slots);
             if (bookings.length > 0) syncToApi('Agendamentos', bookings);
-            if (admins.length > 0) syncToApi('Admins', admins);
+            if (mergedAdmins.length > 0) syncToApi('Admins', mergedAdmins);
             if (missoes.length > 0) syncToApi('Missoes', missoes);
             renderAdminDashboard();
           }, 500);
@@ -4659,7 +4931,8 @@
       input.value = '';
     }
 
-    function forcarSyncTotal() {
+    async function forcarSyncTotal() {
+      if (!requireSuperAdmin()) return;
       if (!confirm('Reenviar todos os dados locais para o Google Sheets?\n\nIsso sobrescreve os dados no servidor com os dados deste dispositivo.')) return;
 
       const profs = getData(STORAGE_KEYS.professionals) || [];
@@ -4670,12 +4943,23 @@
 
       showToast('Reenviando dados...', 'info');
 
-      syncToApi('Profissionais', profs);
-      setTimeout(() => syncToApi('Slots', slots), 2500);
-      setTimeout(() => syncToApi('Agendamentos', bookings), 5000);
-      setTimeout(() => syncToApi('Admins', admins), 7500);
-      setTimeout(() => syncToApi('Missoes', missoes), 10000);
-      setTimeout(() => showToast(`Dados reenviados! ${profs.length} prof, ${slots.length} slots, ${bookings.length} agend.`, 'success'), 12000);
+      const steps = [
+        ['Profissionais', profs],
+        ['Slots', slots],
+        ['Agendamentos', bookings],
+        ['Admins', admins],
+        ['Missoes', missoes]
+      ];
+      const failures = [];
+      for (const [sheet, arr] of steps) {
+        const res = await syncToApi(sheet, arr);
+        if (!res.ok) failures.push(`${sheet} (${res.reason})`);
+      }
+      if (failures.length === 0) {
+        showToast(`Dados reenviados! ${profs.length} prof, ${slots.length} slots, ${bookings.length} agend.`, 'success');
+      } else {
+        showToast('Falha ao reenviar: ' + failures.join(', '), 'error');
+      }
     }
 
     function renderBackupStatus() {
@@ -4762,13 +5046,14 @@
     function getAdminUsers() {
       let admins = getData('plantao_admins');
       if (!admins || admins.length === 0) {
-        // Create default Super Admin on first use
+        // Cria Super Admin inicial. Senha temporária deve ser trocada no primeiro acesso.
         admins = [{
           id: 'admin-super',
           name: 'Super Admin',
           email: 'comissaosm@comshalom.org',
           role: 'super_admin',
-          password: 'admin2025shalom'
+          password: 'admin2025shalom',
+          mustChangePassword: true
         }];
         localStorage.setItem('plantao_admins', JSON.stringify(admins));
         syncToApi('Admins', admins);
@@ -4806,6 +5091,14 @@
         adminLoggedIn = true;
         errorDiv.style.display = 'none';
         document.getElementById('adminPassword').value = '';
+
+        // Se a senha ainda é a temporária, força troca antes de entrar no painel
+        if (admin.mustChangePassword) {
+          showView('admin');
+          setTimeout(() => forcarTrocaSenhaInicial(), 200);
+          return;
+        }
+
         showView('admin');
         showToast(`Bem-vindo(a), ${admin.name}!`, 'success');
       } else {
@@ -4821,6 +5114,60 @@
       adminLoggedIn = false;
       loggedAdmin = null;
       showView('admin');
+    }
+
+    // Força troca da senha inicial (usuário admin com mustChangePassword=true)
+    function forcarTrocaSenhaInicial() {
+      if (!loggedAdmin) return;
+      const body = `
+        <div style="background:#fef3c7;border-left:4px solid #d97706;padding:0.8rem;margin-bottom:1rem;border-radius:6px;">
+          <p style="margin:0;font-size:0.9rem;color:#92400e;"><strong>⚠ Troca de senha obrigatória</strong></p>
+          <p style="margin:0.3rem 0 0 0;font-size:0.85rem;color:#92400e;">Você está usando a senha temporária padrão. Por segurança, defina uma senha pessoal antes de continuar.</p>
+        </div>
+        <div class="form-group">
+          <label>Nova senha (mínimo 8 caracteres)</label>
+          <input type="password" id="forcedNewPass" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label>Confirme a nova senha</label>
+          <input type="password" id="forcedNewPass2" autocomplete="new-password" />
+        </div>`;
+      showDynamicModal('Definir nova senha', body, 'Salvar nova senha', function () {
+        const p1 = document.getElementById('forcedNewPass').value.trim();
+        const p2 = document.getElementById('forcedNewPass2').value.trim();
+        if (!p1 || p1.length < 8) {
+          showToast('A nova senha deve ter pelo menos 8 caracteres.', 'error');
+          return;
+        }
+        if (p1 !== p2) {
+          showToast('As senhas não conferem.', 'error');
+          return;
+        }
+        if (p1 === 'admin2025shalom') {
+          showToast('Escolha uma senha diferente da temporária.', 'error');
+          return;
+        }
+        const admins = getAdminUsers();
+        const idx = admins.findIndex(a => a.id === loggedAdmin.id);
+        if (idx !== -1) {
+          admins[idx].password = p1;
+          admins[idx].mustChangePassword = false;
+          admins[idx].passwordChangedAt = new Date().toISOString();
+          loggedAdmin = admins[idx];
+          setData('plantao_admins', admins);
+          syncToApi('Admins', admins);
+        }
+        closeDynamicModal();
+        showToast(`Senha atualizada! Bem-vindo(a), ${loggedAdmin.name}!`, 'success');
+      });
+      // Esconde o botão "Cancelar" - a troca é obrigatória
+      setTimeout(() => {
+        const footer = document.querySelector('#dynamicModal .modal-footer');
+        if (footer) {
+          const btns = footer.querySelectorAll('button');
+          if (btns.length >= 2) btns[0].style.display = 'none';
+        }
+      }, 10);
     }
 
     function switchAdminTab(tabName, btn) {
@@ -4842,7 +5189,7 @@
 
       // Welcome header
       const roleLabel = loggedAdmin.role === 'super_admin' ? 'Super Administrador' : 'Administrador';
-      document.getElementById('adminWelcome').textContent = `Ola, ${loggedAdmin.name}!`;
+      document.getElementById('adminWelcome').textContent = `Olá, ${loggedAdmin.name}!`;
       document.getElementById('adminRole').textContent = `${roleLabel} | Gerencie profissionais, horários e agendamentos`;
 
       // Show admins tab only for super_admin
@@ -4916,16 +5263,16 @@
           <div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.8rem; border:1px solid #fde68a;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
               <div>
-                <strong style="font-size:1rem;">${p.name}</strong>
+                <strong style="font-size:1rem;">${esc(p.name)}</strong>
                 <div style="font-size:0.85rem; color:var(--text-light); margin-top:0.3rem;">
-                  ${p.specialty} | ${p.registry || '-'}<br>
-                  ${p.email} | ${p.phone || '-'}<br>
+                  ${esc(p.specialty)} | ${esc(p.registry) || '-'}<br>
+                  ${esc(p.email)} | ${esc(p.phone) || '-'}<br>
                   Cadastro em: ${dataCad}
                 </div>
               </div>
               <div style="display:flex; gap:0.5rem;">
-                <button class="btn btn-success" style="padding:0.5rem 1rem; font-size:0.85rem;" onclick="approveProf('${p.id}')">✓ Aprovar</button>
-                <button class="btn" style="padding:0.5rem 1rem; font-size:0.85rem; background:var(--error);" onclick="rejectProf('${p.id}')">✗ Recusar</button>
+                <button class="btn btn-success" style="padding:0.5rem 1rem; font-size:0.85rem;" onclick="approveProf('${esc(p.id)}')">✓ Aprovar</button>
+                <button class="btn" style="padding:0.5rem 1rem; font-size:0.85rem; background:var(--error);" onclick="rejectProf('${esc(p.id)}')">✗ Recusar</button>
               </div>
             </div>
           </div>`;
@@ -4987,7 +5334,7 @@
           <div class="empty-state">
             <div class="empty-state-icon">&#128100;</div>
             <p>Nenhum profissional cadastrado.</p>
-            <p style="font-size: 0.85rem; color: var(--text-light);">Clique em "+ Novo Profissional" para comecar.</p>
+            <p style="font-size: 0.85rem; color: var(--text-light);">Clique em "+ Novo Profissional" para começar.</p>
           </div>`;
         return;
       }
@@ -5002,17 +5349,18 @@
           : `<span class="status-tag cancelled">Pendente</span>`;
 
         html += `<tr>
-          <td><strong>${p.name}</strong></td>
-          <td>${p.specialty}</td>
-          <td style="font-size: 0.8rem;">${p.email}</td>
-          <td style="font-size: 0.8rem;">${p.phone || '-'}</td>
-          <td style="font-size: 0.8rem;">${p.registry || '-'}</td>
+          <td><strong>${esc(p.name)}</strong></td>
+          <td>${esc(p.specialty)}</td>
+          <td style="font-size: 0.8rem;">${esc(p.email)}</td>
+          <td style="font-size: 0.8rem;">${esc(p.phone) || '-'}</td>
+          <td style="font-size: 0.8rem;">${esc(p.registry) || '-'}</td>
           <td><span class="status-tag available">${profSlots.length}</span></td>
           <td><span class="status-tag ${profBookings.length > 0 ? 'booked' : 'completed'}">${profBookings.length}</span></td>
           <td>${termoTag}</td>
           <td>
-            <button class="btn btn-sm btn-accent" onclick="editProfessional('${p.id}')">Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteProfessional('${p.id}')">Excluir</button>
+            <button class="btn btn-sm btn-accent" onclick="editProfessional('${esc(p.id)}')">Editar</button>
+            <button class="btn btn-sm" style="background:#d97706;color:#fff;" onclick="resetProfPassword('${esc(p.id)}')" title="Gerar senha temporária">Redefinir senha</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteProfessional('${esc(p.id)}')">Excluir</button>
           </td>
         </tr>`;
       }
@@ -5029,6 +5377,7 @@
       document.getElementById('profPhone').value = '';
       document.getElementById('profSpecialty').value = 'Psicologia';
       document.getElementById('profPassword').value = '';
+      document.getElementById('profPassword').placeholder = 'Senha inicial (mínimo 8 caracteres)';
       document.getElementById('profRegistry').value = '';
       document.getElementById('profNotes').value = '';
       document.getElementById('profModal').classList.add('show');
@@ -5046,11 +5395,57 @@
       document.getElementById('profEmail').value = prof.email;
       document.getElementById('profPhone').value = prof.phone || '';
       document.getElementById('profSpecialty').value = prof.specialty;
-      document.getElementById('profPassword').value = prof.password;
+      // Por segurança, nunca pré-preenchemos a senha. Vazio = manter a atual.
+      document.getElementById('profPassword').value = '';
+      document.getElementById('profPassword').placeholder = 'Deixe em branco para manter a senha atual';
       document.getElementById('profRegistry').value = prof.registry || '';
       document.getElementById('profNotes').value = prof.notes || '';
       document.getElementById('profModal').classList.add('show');
       document.body.style.overflow = 'hidden';
+    }
+
+    // Gera nova senha temporária para profissional
+    function resetProfPassword(profId) {
+      if (!loggedAdmin) return;
+      const profs = getData(STORAGE_KEYS.professionals) || [];
+      const prof = profs.find(p => p.id === profId);
+      if (!prof) return;
+      if (!confirm(`Gerar nova senha temporária para "${prof.name}"?\n\nA senha atual será descartada. O profissional precisará trocá-la no próximo login.`)) return;
+
+      const tempPassword = gerarSenhaTemporaria();
+      const idx = profs.findIndex(p => p.id === profId);
+      profs[idx].password = tempPassword;
+      profs[idx].mustChangePassword = true;
+      profs[idx].passwordChangedAt = new Date().toISOString();
+      profs[idx].passwordResetBy = loggedAdmin.email;
+
+      setData(STORAGE_KEYS.professionals, profs);
+      syncToApi('Profissionais', profs);
+
+      const body = `
+        <div style="background:#fef3c7;border-left:4px solid #d97706;padding:0.9rem;margin-bottom:1rem;border-radius:6px;">
+          <p style="margin:0;font-size:0.9rem;color:#92400e;"><strong>⚠ Anote esta senha agora</strong></p>
+          <p style="margin:0.3rem 0 0 0;font-size:0.85rem;color:#92400e;">Ela não será exibida novamente. Envie-a ao profissional por um canal seguro.</p>
+        </div>
+        <div class="form-group">
+          <label>Profissional</label>
+          <p style="font-size:0.95rem;">${esc(prof.name)} (${esc(prof.email)})</p>
+        </div>
+        <div class="form-group">
+          <label>Nova senha temporária</label>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input type="text" id="tempPwField" value="${esc(tempPassword)}" readonly style="font-family:monospace;font-size:1.05rem;font-weight:600;letter-spacing:0.08em;" />
+            <button type="button" class="btn btn-sm" onclick="const f=document.getElementById('tempPwField');f.select();document.execCommand('copy');showToast('Senha copiada',&quot;info&quot;);">Copiar</button>
+          </div>
+        </div>`;
+      showDynamicModal('Senha do profissional redefinida', body, 'Fechar', closeDynamicModal);
+      setTimeout(() => {
+        const footer = document.querySelector('#dynamicModal .modal-footer');
+        if (footer) {
+          const btns = footer.querySelectorAll('button');
+          if (btns.length >= 2) btns[0].style.display = 'none';
+        }
+      }, 10);
     }
 
     function closeProfModal() {
@@ -5059,34 +5454,58 @@
     }
 
     function saveProfessional() {
+      if (!loggedAdmin) return;
       const name = document.getElementById('profName').value.trim();
-      const email = document.getElementById('profEmail').value.trim();
+      const email = document.getElementById('profEmail').value.trim().toLowerCase();
       const specialty = document.getElementById('profSpecialty').value;
       const password = document.getElementById('profPassword').value.trim();
+      const editId = document.getElementById('editProfId').value;
 
-      if (!name || !email || !password) {
-        showToast('Preencha nome, e-mail e senha.', 'error');
+      if (!name || !email) {
+        showToast('Preencha nome e e-mail.', 'error');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Digite um e-mail válido.', 'error');
+        return;
+      }
+      // Senha obrigatória ao criar. Ao editar, vazio = manter a atual.
+      if (!editId && !password) {
+        showToast('Defina uma senha inicial para o novo profissional.', 'error');
+        return;
+      }
+      if (password && password.length < 8) {
+        showToast('A senha deve ter pelo menos 8 caracteres.', 'error');
         return;
       }
 
       const profs = getData(STORAGE_KEYS.professionals) || [];
-      const editId = document.getElementById('editProfId').value;
+
+      // Valida e-mail duplicado (exceto o próprio registro quando editando)
+      const emailDup = profs.find(p => p.email && p.email.toLowerCase() === email && p.id !== editId);
+      if (emailDup) {
+        showToast('Já existe um profissional com este e-mail.', 'error');
+        return;
+      }
 
       if (editId) {
-        // Edit existing
         const idx = profs.findIndex(p => p.id === editId);
         if (idx !== -1) {
           profs[idx].name = name;
           profs[idx].email = email;
           profs[idx].phone = document.getElementById('profPhone').value.trim();
           profs[idx].specialty = specialty;
-          profs[idx].password = password;
+          // Só atualiza senha se uma nova foi informada
+          if (password) {
+            profs[idx].password = password;
+            profs[idx].passwordChangedAt = new Date().toISOString();
+            profs[idx].mustChangePassword = false;
+          }
           profs[idx].registry = document.getElementById('profRegistry').value.trim();
           profs[idx].notes = document.getElementById('profNotes').value.trim();
         }
         showToast(`Profissional "${name}" atualizado!`, 'success');
       } else {
-        // Add new
         const newProf = {
           id: 'prof-' + Date.now(),
           name: name,
@@ -5094,13 +5513,15 @@
           phone: document.getElementById('profPhone').value.trim(),
           specialty: specialty,
           password: password,
+          mustChangePassword: true,
           registry: document.getElementById('profRegistry').value.trim(),
           notes: document.getElementById('profNotes').value.trim(),
           status: 'ativo',
-          cadastradoEm: new Date().toISOString()
+          cadastradoEm: new Date().toISOString(),
+          cadastradoPor: loggedAdmin.email
         };
         profs.push(newProf);
-        showToast(`Profissional "${name}" cadastrado!`, 'success');
+        showToast(`Profissional "${name}" cadastrado! Peça que troque a senha no primeiro acesso.`, 'success');
       }
 
       setData(STORAGE_KEYS.professionals, profs);
@@ -5123,7 +5544,7 @@
         msg += `\n\nATENCAO: Este profissional tem ${profBookings.length} agendamento(s) ativo(s) que serao cancelados!`;
       }
       if (profSlots.length > 0) {
-        msg += `\n${profSlots.length} horario(s) serao removidos.`;
+        msg += `\n${profSlots.length} horário(s) serão removidos.`;
       }
 
       if (!confirm(msg)) return;
@@ -5145,7 +5566,7 @@
       });
       setData(STORAGE_KEYS.bookings, updatedBookings);
 
-      showToast(`Profissional "${prof.name}" excluido.`, 'info');
+      showToast(`Profissional "${prof.name}" excluído.`, 'info');
       renderAdminDashboard();
     }
 
@@ -5161,17 +5582,28 @@
         const currentProf = profSelect.value;
         profSelect.innerHTML = '<option value="">Todos os profissionais</option>';
         profs.forEach(p => {
-          profSelect.innerHTML += `<option value="${p.id}" ${currentProf === p.id ? 'selected' : ''}>${p.name}</option>`;
+          profSelect.innerHTML += `<option value="${esc(p.id)}" ${currentProf === p.id ? 'selected' : ''}>${esc(p.name)}</option>`;
         });
       }
 
       // Aplica filtros
       const statusFilter = document.getElementById('filterBookingStatus')?.value || '';
       const profFilter = document.getElementById('filterBookingProf')?.value || '';
+      const dateStart = document.getElementById('filterBookingDateStart')?.value || '';
+      const dateEnd = document.getElementById('filterBookingDateEnd')?.value || '';
 
       let filtered = [...bookings];
       if (statusFilter) filtered = filtered.filter(b => b.status === statusFilter);
       if (profFilter) filtered = filtered.filter(b => b.profId === profFilter);
+      if (dateStart || dateEnd) {
+        filtered = filtered.filter(b => {
+          const slot = slots.find(s => s.id === b.slotId);
+          if (!slot || !slot.date) return false;
+          if (dateStart && slot.date < dateStart) return false;
+          if (dateEnd && slot.date > dateEnd) return false;
+          return true;
+        });
+      }
 
       // Ordena por data da consulta (slot.date), não por createdAt
       filtered.sort((a, b) => {
@@ -5192,6 +5624,7 @@
       }
 
       const statusMap = { confirmed: 'Confirmado', completed: 'Realizado', cancelled: 'Cancelado' };
+      const typeMap = { missionario: 'Missionário', formador: 'Agente Formativo' };
 
       let html = `<p style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.5rem;">${filtered.length} agendamento(s) encontrado(s)</p>`;
       html += '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Paciente</th><th>Profissional</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
@@ -5200,15 +5633,19 @@
         const slot = slots.find(s => s.id === b.slotId);
         const prof = profs.find(p => p.id === b.profId);
         const statusClass = b.status === 'confirmed' ? 'booked' : b.status;
+        const typeLabel = typeMap[b.type] || (b.type ? esc(b.type) : '—');
 
         html += `<tr>
-          <td><strong>${b.patientName}</strong></td>
-          <td>${prof ? prof.name : '?'}</td>
+          <td><strong>${esc(b.patientName)}</strong></td>
+          <td>${prof ? esc(prof.name) : '?'}</td>
           <td>${slot ? formatDateBR(slot.date) : '?'}</td>
-          <td>${slot ? slot.time : '?'}</td>
-          <td>${b.type === 'missionario' ? 'Missionário' : 'Agente Formativo'}</td>
-          <td><span class="status-tag ${statusClass}">${statusMap[b.status] || b.status}</span></td>
-          <td><button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${b.id}')">Ver Anamnese</button></td>
+          <td>${slot ? esc(slot.time) : '?'}</td>
+          <td>${typeLabel}</td>
+          <td><span class="status-tag ${statusClass}">${statusMap[b.status] || esc(b.status)}</span></td>
+          <td>
+            <button class="btn btn-sm btn-accent" onclick="viewAnamnesis('${esc(b.id)}')">Ver Anamnese</button>
+            ${b.status === 'confirmed' ? `<button class="btn btn-sm btn-danger" onclick="adminCancelBooking('${esc(b.id)}')" title="Cancelar este agendamento">Cancelar</button>` : ''}
+          </td>
         </tr>`;
       }
 
@@ -5232,7 +5669,7 @@
         document.getElementById('adminSlotsContainer').innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">&#128197;</div>
-            <p>Nenhum horario futuro cadastrado.</p>
+            <p>Nenhum horário futuro cadastrado.</p>
           </div>`;
         return;
       }
@@ -5271,45 +5708,70 @@
       let html = '<div style="overflow-x:auto;"><table class="slots-table"><thead><tr><th>Missão</th><th>Casa Comunitária</th><th>E-mail FC</th><th>E-mail Secretária</th><th>Ações</th></tr></thead><tbody>';
       Object.keys(grouped).sort().forEach(missao => {
         grouped[missao].forEach(m => {
-          html += `<tr><td>${missao}</td><td>${m.casa}</td><td>${m.fcEmail || '-'}</td><td>${m.secretariaEmail || '-'}</td><td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="editMissao('${m.id}')">Editar</button> <button class="btn" style="padding:0.3rem 0.6rem;font-size:0.75rem;background:var(--error);" onclick="deleteMissao('${m.id}')">Excluir</button></td></tr>`;
+          html += `<tr><td>${esc(missao)}</td><td>${esc(m.casa)}</td><td>${esc(m.fcEmail) || '-'}</td><td>${esc(m.secretariaEmail) || '-'}</td><td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="editMissao('${esc(m.id)}')">Editar</button> <button class="btn" style="padding:0.3rem 0.6rem;font-size:0.75rem;background:var(--error);" onclick="deleteMissao('${esc(m.id)}')">Excluir</button></td></tr>`;
         });
       });
       html += '</tbody></table>';
       document.getElementById('missoesTableContainer').innerHTML = html;
     }
 
+    // Valida e-mail opcional. Retorna null se válido ou vazio, senão retorna string de erro.
+    function validaEmailOpcional(valor, campo) {
+      if (!valor) return null;
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? null : `E-mail inválido em "${campo}".`;
+    }
+
     function openAddMissaoModal() {
-      const html = `<div class="form-group"><label>Nome da Missao <span class="required">*</span></label><input type="text" class="form-input" id="missaoName" placeholder="Ex: Shalom Fortaleza"></div>
-        <div class="form-group"><label>Nome da Casa Comunitaria <span class="required">*</span></label><input type="text" class="form-input" id="missaoCasa" placeholder="Ex: Casa Sao Jose"></div>
+      if (!loggedAdmin) return;
+      const html = `<div class="form-group"><label>Nome da Missão <span class="required">*</span></label><input type="text" class="form-input" id="missaoName" placeholder="Ex: Shalom Fortaleza"></div>
+        <div class="form-group"><label>Nome da Casa Comunitária <span class="required">*</span></label><input type="text" class="form-input" id="missaoCasa" placeholder="Ex: Casa São José"></div>
         <div class="form-group"><label>E-mail do(a) FC</label><input type="email" class="form-input" id="missaoFcEmail"></div>
-        <div class="form-group"><label>E-mail da Secretaria Comunitaria</label><input type="email" class="form-input" id="missaoSecEmail"></div>`;
-      showDynamicModal('Nova Casa Comunitaria', html, 'Salvar', function() {
+        <div class="form-group"><label>E-mail da Secretaria Comunitária</label><input type="email" class="form-input" id="missaoSecEmail"></div>`;
+      showDynamicModal('Nova Casa Comunitária', html, 'Salvar', function() {
         const missao = document.getElementById('missaoName').value.trim();
         const casa = document.getElementById('missaoCasa').value.trim();
-        if (!missao || !casa) { showToast('Preencha Missao e Casa.', 'error'); return; }
+        const fcEmail = document.getElementById('missaoFcEmail').value.trim();
+        const secretariaEmail = document.getElementById('missaoSecEmail').value.trim();
+        if (!missao || !casa) { showToast('Preencha Missão e Casa.', 'error'); return; }
+        const errFc = validaEmailOpcional(fcEmail, 'E-mail do FC');
+        if (errFc) { showToast(errFc, 'error'); return; }
+        const errSec = validaEmailOpcional(secretariaEmail, 'E-mail da Secretaria');
+        if (errSec) { showToast(errSec, 'error'); return; }
         const missoes = getData(STORAGE_KEYS.missoes) || [];
-        missoes.push({ id: 'ms-' + Date.now(), missao, casa, fcEmail: document.getElementById('missaoFcEmail').value.trim(), secretariaEmail: document.getElementById('missaoSecEmail').value.trim() });
+        // Evita duplicata (mesma missão + casa)
+        if (missoes.some(m => m.missao.toLowerCase() === missao.toLowerCase() && m.casa.toLowerCase() === casa.toLowerCase())) {
+          showToast('Já existe uma casa com essa combinação de Missão + Casa.', 'error');
+          return;
+        }
+        missoes.push({ id: 'ms-' + Date.now(), missao, casa, fcEmail, secretariaEmail });
         setData(STORAGE_KEYS.missoes, missoes);
         syncToApi('Missoes', missoes);
         closeDynamicModal();
         renderMissoesTable();
-        showToast('Casa comunitaria adicionada!', 'success');
+        showToast('Casa comunitária adicionada!', 'success');
       });
     }
 
     function editMissao(id) {
+      if (!loggedAdmin) return;
       const missoes = getData(STORAGE_KEYS.missoes) || [];
       const m = missoes.find(x => x.id === id);
       if (!m) return;
-      const html = `<div class="form-group"><label>Nome da Missao <span class="required">*</span></label><input type="text" class="form-input" id="missaoName" value="${m.missao}"></div>
-        <div class="form-group"><label>Nome da Casa Comunitaria <span class="required">*</span></label><input type="text" class="form-input" id="missaoCasa" value="${m.casa}"></div>
-        <div class="form-group"><label>E-mail do(a) FC</label><input type="email" class="form-input" id="missaoFcEmail" value="${m.fcEmail || ''}"></div>
-        <div class="form-group"><label>E-mail da Secretaria Comunitaria</label><input type="email" class="form-input" id="missaoSecEmail" value="${m.secretariaEmail || ''}"></div>`;
-      showDynamicModal('Editar Casa Comunitaria', html, 'Salvar', function() {
+      const html = `<div class="form-group"><label>Nome da Missão <span class="required">*</span></label><input type="text" class="form-input" id="missaoName" value="${esc(m.missao)}"></div>
+        <div class="form-group"><label>Nome da Casa Comunitária <span class="required">*</span></label><input type="text" class="form-input" id="missaoCasa" value="${esc(m.casa)}"></div>
+        <div class="form-group"><label>E-mail do(a) FC</label><input type="email" class="form-input" id="missaoFcEmail" value="${esc(m.fcEmail) || ''}"></div>
+        <div class="form-group"><label>E-mail da Secretaria Comunitária</label><input type="email" class="form-input" id="missaoSecEmail" value="${esc(m.secretariaEmail) || ''}"></div>`;
+      showDynamicModal('Editar Casa Comunitária', html, 'Salvar', function() {
         const missao = document.getElementById('missaoName').value.trim();
         const casa = document.getElementById('missaoCasa').value.trim();
-        if (!missao || !casa) { showToast('Preencha Missao e Casa.', 'error'); return; }
-        const updated = missoes.map(x => x.id === id ? { ...x, missao, casa, fcEmail: document.getElementById('missaoFcEmail').value.trim(), secretariaEmail: document.getElementById('missaoSecEmail').value.trim() } : x);
+        const fcEmail = document.getElementById('missaoFcEmail').value.trim();
+        const secretariaEmail = document.getElementById('missaoSecEmail').value.trim();
+        if (!missao || !casa) { showToast('Preencha Missão e Casa.', 'error'); return; }
+        const errFc = validaEmailOpcional(fcEmail, 'E-mail do FC');
+        if (errFc) { showToast(errFc, 'error'); return; }
+        const errSec = validaEmailOpcional(secretariaEmail, 'E-mail da Secretaria');
+        if (errSec) { showToast(errSec, 'error'); return; }
+        const updated = missoes.map(x => x.id === id ? { ...x, missao, casa, fcEmail, secretariaEmail } : x);
         setData(STORAGE_KEYS.missoes, updated);
         syncToApi('Missoes', updated);
         closeDynamicModal();
@@ -5319,11 +5781,18 @@
     }
 
     function deleteMissao(id) {
-      // Verifica se há agendamentos referenciando esta casa
+      if (!loggedAdmin) return;
       const bookings = getData(STORAGE_KEYS.bookings) || [];
-      const emUso = bookings.some(b => b.casaId === id && b.status !== 'cancelled');
-      if (emUso) {
-        showToast('Não é possível excluir: há agendamentos ativos vinculados a esta casa.', 'error');
+      const ativos = bookings.filter(b => b.casaId === id && b.status === 'confirmed').length;
+      const concluidos = bookings.filter(b => b.casaId === id && b.status === 'completed').length;
+
+      if (ativos > 0) {
+        showToast(`Não é possível excluir: há ${ativos} agendamento(s) ativo(s) vinculado(s) a esta casa.`, 'error');
+        return;
+      }
+      if (concluidos > 0) {
+        // Bloqueia para preservar integridade histórica / auditoria
+        showToast(`Não é possível excluir: há ${concluidos} agendamento(s) concluído(s) vinculado(s) a esta casa (histórico).`, 'error');
         return;
       }
       if (!confirm('Tem certeza que deseja excluir esta casa comunitária?')) return;
@@ -5415,17 +5884,20 @@
 
       let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ações</th></tr></thead><tbody>';
 
+      const canEdit = loggedAdmin && loggedAdmin.role === 'super_admin';
       for (const a of admins) {
         const roleLabel = a.role === 'super_admin' ? '<span class="status-tag booked">Super Admin</span>' : '<span class="status-tag available">Admin</span>';
         const isSelf = loggedAdmin && loggedAdmin.id === a.id;
+        const mustChange = a.mustChangePassword ? ' <span title="Senha temporária - precisa ser trocada" style="font-size:0.75rem;color:#d97706;">⚠</span>' : '';
 
         html += `<tr>
-          <td><strong>${a.name}</strong> ${isSelf ? '<span style="font-size:0.75rem; color: var(--accent);">(voce)</span>' : ''}</td>
-          <td style="font-size: 0.85rem;">${a.email}</td>
+          <td><strong>${esc(a.name)}</strong>${mustChange} ${isSelf ? '<span style="font-size:0.75rem; color: var(--accent);">(você)</span>' : ''}</td>
+          <td style="font-size: 0.85rem;">${esc(a.email)}</td>
           <td>${roleLabel}</td>
           <td>
-            <button class="btn btn-sm btn-accent" onclick="editAdminUser('${a.id}')">Editar</button>
-            ${!isSelf ? `<button class="btn btn-sm btn-danger" onclick="deleteAdminUser('${a.id}')">Excluir</button>` : ''}
+            ${canEdit ? `<button class="btn btn-sm btn-accent" onclick="editAdminUser('${esc(a.id)}')">Editar</button>` : ''}
+            ${canEdit && !isSelf ? `<button class="btn btn-sm" style="background:#d97706;color:#fff;" onclick="resetAdminPassword('${esc(a.id)}')" title="Gerar senha temporária">Redefinir senha</button>` : ''}
+            ${canEdit && !isSelf ? `<button class="btn btn-sm btn-danger" onclick="deleteAdminUser('${esc(a.id)}')">Excluir</button>` : ''}
           </td>
         </tr>`;
       }
@@ -5434,18 +5906,30 @@
       container.innerHTML = html;
     }
 
+    // Verifica se o admin logado tem privilégio de super_admin (guard contra DevTools)
+    function requireSuperAdmin() {
+      if (!loggedAdmin || loggedAdmin.role !== 'super_admin') {
+        showToast('Apenas Super Administradores podem executar esta ação.', 'error');
+        return false;
+      }
+      return true;
+    }
+
     function openAddAdminModal() {
+      if (!requireSuperAdmin()) return;
       document.getElementById('adminUserModalTitle').textContent = 'Novo Administrador';
       document.getElementById('editAdminId').value = '';
       document.getElementById('adminUserName').value = '';
       document.getElementById('adminUserEmail').value = '';
       document.getElementById('adminUserRole').value = 'admin';
       document.getElementById('adminUserPassword').value = '';
+      document.getElementById('adminUserPassword').placeholder = 'Mínimo 8 caracteres';
       document.getElementById('adminUserModal').classList.add('show');
       document.body.style.overflow = 'hidden';
     }
 
     function editAdminUser(adminId) {
+      if (!requireSuperAdmin()) return;
       const admins = getAdminUsers();
       const admin = admins.find(a => a.id === adminId);
       if (!admin) return;
@@ -5455,7 +5939,9 @@
       document.getElementById('adminUserName').value = admin.name;
       document.getElementById('adminUserEmail').value = admin.email;
       document.getElementById('adminUserRole').value = admin.role;
-      document.getElementById('adminUserPassword').value = admin.password;
+      // Por segurança, nunca pré-preenchemos a senha. Em branco = manter a atual.
+      document.getElementById('adminUserPassword').value = '';
+      document.getElementById('adminUserPassword').placeholder = 'Deixe em branco para manter a senha atual';
       document.getElementById('adminUserModal').classList.add('show');
       document.body.style.overflow = 'hidden';
     }
@@ -5466,18 +5952,16 @@
     }
 
     function saveAdminUser() {
+      if (!requireSuperAdmin()) return;
+
       const name = document.getElementById('adminUserName').value.trim();
-      const email = document.getElementById('adminUserEmail').value.trim();
+      const email = document.getElementById('adminUserEmail').value.trim().toLowerCase();
       const role = document.getElementById('adminUserRole').value;
       const password = document.getElementById('adminUserPassword').value.trim();
+      const editId = document.getElementById('editAdminId').value;
 
-      if (!name || !email || !password) {
-        showToast('Preencha nome, e-mail e senha.', 'error');
-        return;
-      }
-
-      if (password.length < 6) {
-        showToast('A senha deve ter pelo menos 6 caracteres.', 'error');
+      if (!name || !email) {
+        showToast('Preencha nome e e-mail.', 'error');
         return;
       }
 
@@ -5486,14 +5970,34 @@
         return;
       }
 
+      // Senha obrigatória ao criar. Ao editar, vazio = manter a atual.
+      if (!editId && !password) {
+        showToast('Defina uma senha para o novo administrador.', 'error');
+        return;
+      }
+      if (password && password.length < 8) {
+        showToast('A senha deve ter pelo menos 8 caracteres.', 'error');
+        return;
+      }
+
       const admins = getAdminUsers();
-      const editId = document.getElementById('editAdminId').value;
+
+      // Valida e-mail duplicado (exceto o próprio registro quando editando)
+      const emailDup = admins.find(a => a.email.toLowerCase() === email && a.id !== editId);
+      if (emailDup) {
+        showToast('Já existe um administrador com este e-mail.', 'error');
+        return;
+      }
 
       if (editId) {
         // Impede super_admin de se auto-rebaixar
         if (loggedAdmin && loggedAdmin.id === editId && loggedAdmin.role === 'super_admin' && role !== 'super_admin') {
-          showToast('Você não pode alterar seu próprio perfil de Super Administrador.', 'error');
-          return;
+          // Só permite se sobrar outro super_admin
+          const outrosSupers = admins.filter(a => a.role === 'super_admin' && a.id !== editId);
+          if (outrosSupers.length === 0) {
+            showToast('Deve haver pelo menos um Super Administrador. Rebaixe este perfil depois de promover outro.', 'error');
+            return;
+          }
         }
 
         const idx = admins.findIndex(a => a.id === editId);
@@ -5501,7 +6005,12 @@
           admins[idx].name = name;
           admins[idx].email = email;
           admins[idx].role = role;
-          admins[idx].password = password;
+          // Só atualiza senha se uma nova foi informada
+          if (password) {
+            admins[idx].password = password;
+            admins[idx].passwordChangedAt = new Date().toISOString();
+            admins[idx].mustChangePassword = false;
+          }
 
           // Update loggedAdmin if editing self
           if (loggedAdmin && loggedAdmin.id === editId) {
@@ -5515,9 +6024,12 @@
           name: name,
           email: email,
           role: role,
-          password: password
+          password: password,
+          createdAt: new Date().toISOString(),
+          createdBy: loggedAdmin ? loggedAdmin.email : 'system',
+          mustChangePassword: true
         });
-        showToast(`Administrador "${name}" cadastrado!`, 'success');
+        showToast(`Administrador "${name}" cadastrado! Peça que ele troque a senha no primeiro acesso.`, 'success');
       }
 
       setData('plantao_admins', admins);
@@ -5526,7 +6038,69 @@
       renderAdminDashboard();
     }
 
+    // Gera senha temporária legível (letras+dígitos) de 10 caracteres
+    function gerarSenhaTemporaria() {
+      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      let pw = '';
+      const a = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+        ? (() => { const b = new Uint8Array(10); crypto.getRandomValues(b); return b; })()
+        : Array.from({ length: 10 }, () => Math.floor(Math.random() * 256));
+      for (let i = 0; i < 10; i++) pw += alphabet[a[i] % alphabet.length];
+      return pw;
+    }
+
+    function resetAdminPassword(adminId) {
+      if (!requireSuperAdmin()) return;
+      if (loggedAdmin && loggedAdmin.id === adminId) {
+        showToast('Use "Minha conta" para trocar sua própria senha.', 'error');
+        return;
+      }
+      const admins = getAdminUsers();
+      const admin = admins.find(a => a.id === adminId);
+      if (!admin) return;
+      if (!confirm(`Gerar nova senha temporária para "${admin.name}"?\n\nA senha atual será descartada. O admin precisará trocar a senha no próximo login.`)) return;
+
+      const tempPassword = gerarSenhaTemporaria();
+      const idx = admins.findIndex(a => a.id === adminId);
+      admins[idx].password = tempPassword;
+      admins[idx].mustChangePassword = true;
+      admins[idx].passwordChangedAt = new Date().toISOString();
+      admins[idx].passwordResetBy = loggedAdmin.email;
+
+      setData('plantao_admins', admins);
+      syncToApi('Admins', admins);
+
+      // Mostra senha em modal (única oportunidade de vê-la)
+      const body = `
+        <div style="background:#fef3c7;border-left:4px solid #d97706;padding:0.9rem;margin-bottom:1rem;border-radius:6px;">
+          <p style="margin:0;font-size:0.9rem;color:#92400e;"><strong>⚠ Anote esta senha agora</strong></p>
+          <p style="margin:0.3rem 0 0 0;font-size:0.85rem;color:#92400e;">Ela não será exibida novamente. Envie-a ao administrador por um canal seguro.</p>
+        </div>
+        <div class="form-group">
+          <label>Admin</label>
+          <p style="font-size:0.95rem;">${esc(admin.name)} (${esc(admin.email)})</p>
+        </div>
+        <div class="form-group">
+          <label>Nova senha temporária</label>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input type="text" id="tempPwField" value="${esc(tempPassword)}" readonly style="font-family:monospace;font-size:1.05rem;font-weight:600;letter-spacing:0.08em;" />
+            <button type="button" class="btn btn-sm" onclick="const f=document.getElementById('tempPwField');f.select();document.execCommand('copy');showToast('Senha copiada',&quot;info&quot;);">Copiar</button>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-light);">O admin será forçado a trocar a senha no próximo login.</p>`;
+      showDynamicModal('Senha redefinida', body, 'Fechar', closeDynamicModal);
+      // Remove botão Cancelar — só há "Fechar"
+      setTimeout(() => {
+        const footer = document.querySelector('#dynamicModal .modal-footer');
+        if (footer) {
+          const btns = footer.querySelectorAll('button');
+          if (btns.length >= 2) btns[0].style.display = 'none';
+        }
+      }, 10);
+    }
+
     function deleteAdminUser(adminId) {
+      if (!requireSuperAdmin()) return;
       if (loggedAdmin && loggedAdmin.id === adminId) {
         showToast('Você não pode excluir seu próprio perfil.', 'error');
         return;
