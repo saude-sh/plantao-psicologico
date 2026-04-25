@@ -1085,6 +1085,7 @@
         <div style="text-align: center; margin: 2rem 0;">
           <button class="btn btn-success btn-lg" style="padding: 1rem 3rem; font-size: 1.1rem;" onclick="showConsentTerm()">Quero agendar meu atendimento</button>
           <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.8rem;">Você precisará aceitar o Termo de Consentimento para prosseguir.</p>
+          <p style="font-size: 0.9rem; margin-top: 1.2rem;">Já tem um agendamento? <a href="#" onclick="event.preventDefault(); abrirCancelamentoPaciente()" style="color: var(--primary); font-weight: 600;">Cancelar agendamento</a></p>
         </div>
 
         <!-- Contato -->
@@ -1121,7 +1122,7 @@
             <p>Oferecemos acolhimento, orientação e suporte emocional para situações específicas. <strong>O Plantão não é atendimento de emergência</strong>: em caso de risco imediato à vida, procure o CAPS, UPA ou disque 188 (CVV).</p>
 
             <h4>3. QUAIS DADOS COLETAMOS</h4>
-            <p>Para realizar o atendimento, coletamos: nome, e-mail, telefone, missão/casa comunitária, cidade, motivo da procura, histórico de acompanhamento psicológico/psiquiátrico prévio, uso de medicação e observações relevantes que você queira informar.</p>
+            <p>Para realizar o atendimento, coletamos: nome, e-mail, telefone, missão/casa comunitária, motivo da procura, histórico de acompanhamento psicológico/psiquiátrico prévio, uso de medicação e observações relevantes que você queira informar.</p>
 
             <h4>4. QUEM TEM ACESSO AOS SEUS DADOS</h4>
             <p>Seus dados são acessíveis apenas a: <strong>(a)</strong> o profissional que irá atendê-lo(a); <strong>(b)</strong> a coordenação do Plantão e a Comissão de Saúde Mental, estritamente para fins administrativos e de supervisão; <strong>(c)</strong> a secretaria da Comunidade Católica Shalom, apenas nos casos em que houver encaminhamento (Via B — psicoterapia, Via C — psiquiatria).</p>
@@ -1795,10 +1796,6 @@
 
         <div class="form-section-title">Pré-Anamnese</div>
         <div class="form-group">
-          <label>Qual a sua cidade e estado? <span class="required">*</span></label>
-          <input type="text" class="form-input" id="bkCity">
-        </div>
-        <div class="form-group">
           <label>Há quanto tempo está na Comunidade?</label>
           <input type="text" class="form-input" id="bkTimeCommunity" placeholder="Ex: 3 anos">
         </div>
@@ -1807,7 +1804,7 @@
           <textarea class="form-input" id="bkReason" placeholder="Descreva brevemente o motivo da sua procura..."></textarea>
         </div>
         <div class="form-group">
-          <label>Já fez ou faz acompanhamento psicológico/psiquiátrico?</label>
+          <label>Já fez ou faz acompanhamento psicológico/psiquiátrico? <span class="required">*</span></label>
           <select class="form-input" id="bkPrevious">
             <option value="">-- Selecione --</option>
             <option value="nao">Não</option>
@@ -1816,7 +1813,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Faz uso de medicação psiquiátrica?</label>
+          <label>Faz uso de medicação psiquiátrica? <span class="required">*</span></label>
           <select class="form-input" id="bkMedication">
             <option value="">-- Selecione --</option>
             <option value="nao">Não</option>
@@ -1851,6 +1848,47 @@
       <div class="modal-body" id="anamnesisContent"></div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeAnamnesisModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Cancelamento pelo paciente -->
+  <div id="patientCancelModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header" style="background: linear-gradient(135deg, #991b1b, #ef4444);">
+        <h2>Cancelar agendamento</h2>
+        <p id="patientCancelHeaderSubtitle">Informe o e-mail usado no agendamento. Enviaremos um código de verificação.</p>
+      </div>
+      <div class="modal-body" id="patientCancelBody">
+        <!-- Etapa 1: pedir email -->
+        <div id="cancelStepEmail">
+          <div class="form-group">
+            <label>E-mail cadastrado <span class="required">*</span></label>
+            <input type="email" class="form-input" id="cancelEmail" placeholder="seu@email.com" onkeypress="if(event.key==='Enter') solicitarCodigoCancelamento()">
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="solicitarCodigoCancelamento()">Enviar código por e-mail</button>
+          <div id="cancelStepEmailMsg" style="margin-top:0.8rem;font-size:0.9rem;"></div>
+        </div>
+
+        <!-- Etapa 2: pedir codigo -->
+        <div id="cancelStepCode" style="display:none;">
+          <p style="font-size:0.9rem;color:var(--text-light);margin-bottom:0.8rem;">Enviamos um código de 6 dígitos para <strong id="cancelEmailEcho"></strong>. Verifique também o spam.</p>
+          <div class="form-group">
+            <label>Código de verificação <span class="required">*</span></label>
+            <input type="text" inputmode="numeric" maxlength="6" class="form-input" id="cancelCode" placeholder="000000" style="font-family:monospace;font-size:1.3rem;letter-spacing:0.3em;text-align:center;" onkeypress="if(event.key==='Enter') verificarCodigoCancelamento()">
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="verificarCodigoCancelamento()">Verificar e listar agendamentos</button>
+          <p style="margin-top:0.6rem;font-size:0.85rem;text-align:center;"><a href="#" onclick="event.preventDefault(); voltarEtapaEmail()" style="color:var(--text-light);">Trocar e-mail</a></p>
+          <div id="cancelStepCodeMsg" style="margin-top:0.8rem;font-size:0.9rem;"></div>
+        </div>
+
+        <!-- Etapa 3: lista de agendamentos -->
+        <div id="cancelStepList" style="display:none;">
+          <div id="patientCancelResults"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="fecharCancelamentoPaciente()">Fechar</button>
       </div>
     </div>
   </div>
@@ -2751,7 +2789,7 @@
       `;
 
       // Reset form
-      ['bkName', 'bkEmail', 'bkPhone', 'bkCity', 'bkTimeCommunity', 'bkReason', 'bkNotes', 'bkMedicationDetail'].forEach(id => {
+      ['bkName', 'bkEmail', 'bkPhone', 'bkTimeCommunity', 'bkReason', 'bkNotes', 'bkMedicationDetail'].forEach(id => {
         document.getElementById(id).value = '';
       });
       ['bkType', 'bkPrevious', 'bkMedication', 'bkMissao', 'bkCasa'].forEach(id => {
@@ -2809,10 +2847,11 @@
       const phone = document.getElementById('bkPhone').value.trim();
       const type = document.getElementById('bkType').value;
       const casaId = document.getElementById('bkCasa').value;
-      const city = document.getElementById('bkCity').value.trim();
       const reason = document.getElementById('bkReason').value.trim();
+      const previousTherapy = document.getElementById('bkPrevious').value;
+      const medication = document.getElementById('bkMedication').value;
 
-      if (!name || !email || !phone || !type || !casaId || !city || !reason) {
+      if (!name || !email || !phone || !type || !casaId || !reason || !previousTherapy || !medication) {
         showToast('Por favor, preencha todos os campos obrigatórios (*).', 'error');
         return;
       }
@@ -2931,11 +2970,10 @@
         consentAcceptedAt: consentAcceptedAt,
         consentVersion: consentVersion,
         anamnesis: {
-          city: city,
           timeCommunity: document.getElementById('bkTimeCommunity').value.trim(),
           reason: reason,
-          previousTherapy: document.getElementById('bkPrevious').value,
-          medication: document.getElementById('bkMedication').value,
+          previousTherapy: previousTherapy,
+          medication: medication,
           medicationDetail: document.getElementById('bkMedicationDetail').value.trim(),
           notes: document.getElementById('bkNotes').value.trim()
         }
@@ -4192,7 +4230,130 @@
       renderDashboard();
     }
 
-    // ===== CANCEL BOOKING =====
+    // ===== CANCELAMENTO PELO PACIENTE (com verificação por código por e-mail) =====
+    const COORD_EMAIL_FALLBACK = 'comissaosm@comshalom.org';
+    let _cancelVerifiedEmail = '';
+    let _cancelVerifiedCode = '';
+
+    function abrirCancelamentoPaciente() {
+      document.getElementById('cancelEmail').value = '';
+      document.getElementById('cancelCode').value = '';
+      document.getElementById('cancelStepEmailMsg').innerHTML = '';
+      document.getElementById('cancelStepCodeMsg').innerHTML = '';
+      document.getElementById('patientCancelResults').innerHTML = '';
+      _cancelVerifiedEmail = '';
+      _cancelVerifiedCode = '';
+      _mostrarEtapaCancel('email');
+      document.getElementById('patientCancelModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => { try { document.getElementById('cancelEmail').focus(); } catch(_){} }, 100);
+    }
+
+    function fecharCancelamentoPaciente() {
+      document.getElementById('patientCancelModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function _mostrarEtapaCancel(etapa) {
+      document.getElementById('cancelStepEmail').style.display = etapa === 'email' ? 'block' : 'none';
+      document.getElementById('cancelStepCode').style.display = etapa === 'code' ? 'block' : 'none';
+      document.getElementById('cancelStepList').style.display = etapa === 'list' ? 'block' : 'none';
+    }
+
+    function voltarEtapaEmail() {
+      _cancelVerifiedEmail = '';
+      _cancelVerifiedCode = '';
+      document.getElementById('cancelCode').value = '';
+      document.getElementById('cancelStepCodeMsg').innerHTML = '';
+      _mostrarEtapaCancel('email');
+    }
+
+    async function solicitarCodigoCancelamento() {
+      const email = (document.getElementById('cancelEmail').value || '').trim().toLowerCase();
+      const msg = document.getElementById('cancelStepEmailMsg');
+      msg.innerHTML = '';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg.innerHTML = '<div style="color:#991b1b;">Digite um e-mail válido.</div>';
+        return;
+      }
+      msg.innerHTML = '<div style="color:var(--text-light);">Enviando código...</div>';
+      const result = await apiCall({ action: 'requestCancelCode', email: email });
+      if (!result.ok) {
+        msg.innerHTML = '<div style="color:#991b1b;">Não foi possível enviar o código. Tente novamente em instantes.</div>';
+        return;
+      }
+      document.getElementById('cancelEmailEcho').textContent = email;
+      _cancelVerifiedEmail = email;
+      _mostrarEtapaCancel('code');
+      setTimeout(() => { try { document.getElementById('cancelCode').focus(); } catch(_){} }, 100);
+    }
+
+    async function verificarCodigoCancelamento() {
+      const code = (document.getElementById('cancelCode').value || '').trim();
+      const msg = document.getElementById('cancelStepCodeMsg');
+      msg.innerHTML = '';
+      if (!/^\d{6}$/.test(code)) {
+        msg.innerHTML = '<div style="color:#991b1b;">Digite o código de 6 dígitos.</div>';
+        return;
+      }
+      msg.innerHTML = '<div style="color:var(--text-light);">Verificando...</div>';
+      const result = await apiCall({ action: 'listBookingsForCancel', email: _cancelVerifiedEmail, code: code });
+      if (!result.ok) {
+        msg.innerHTML = '<div style="color:#991b1b;">' + (result.error || 'Código inválido ou expirado.') + '</div>';
+        return;
+      }
+      _cancelVerifiedCode = code;
+      _renderListaCancelamento(result.data || []);
+      _mostrarEtapaCancel('list');
+    }
+
+    function _renderListaCancelamento(items) {
+      const box = document.getElementById('patientCancelResults');
+      if (!items || items.length === 0) {
+        box.innerHTML = '<div style="background:#f0f4ff;padding:1rem;border-radius:8px;font-size:0.9rem;">Nenhum agendamento futuro encontrado para este e-mail.</div>';
+        return;
+      }
+      const now = new Date();
+      box.innerHTML = items.map(b => {
+        const dt = new Date(b.slotDateTime);
+        const horasRestantes = (dt.getTime() - now.getTime()) / 3600000;
+        const podeCancelar = horasRestantes >= 24;
+        const acao = podeCancelar
+          ? `<button class="btn btn-danger btn-sm" onclick="confirmarCancelamentoPaciente('${esc(b.bookingId)}')">Cancelar este agendamento</button>`
+          : `<div style="background:#fef3c7;border-left:4px solid #d97706;padding:0.8rem;border-radius:6px;font-size:0.85rem;">
+              <strong>Faltam menos de 24h para o atendimento.</strong><br>
+              Para cancelar, entre em contato com a Comissão de Saúde Mental:
+              <a href="mailto:${COORD_EMAIL_FALLBACK}?subject=Cancelamento%20de%20agendamento" style="color:var(--primary);font-weight:600;">${COORD_EMAIL_FALLBACK}</a>
+            </div>`;
+        return `<div style="border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.8rem;">
+          <div style="font-weight:600;margin-bottom:0.3rem;">${esc(b.profName)}</div>
+          <div style="font-size:0.9rem;color:var(--text-light);margin-bottom:0.6rem;">${formatDateBR(b.date)} às ${esc(b.time)} (${esc(String(b.duration))} min)</div>
+          ${acao}
+        </div>`;
+      }).join('');
+    }
+
+    async function confirmarCancelamentoPaciente(bookingId) {
+      if (!confirm('Tem certeza que deseja cancelar este agendamento? O horário ficará disponível para outras pessoas.')) return;
+      const result = await apiCall({
+        action: 'cancelBookingByPatient',
+        email: _cancelVerifiedEmail,
+        code: _cancelVerifiedCode,
+        bookingId: bookingId
+      });
+      if (!result.ok) {
+        showToast(result.error || 'Não foi possível cancelar.', 'error');
+        return;
+      }
+      showToast('Agendamento cancelado. O horário foi liberado.', 'success');
+      // Sincroniza com servidor para refletir no cache local
+      try { await syncFromApi(); } catch(_){}
+      // Recarrega lista (precisa novo código pois o anterior foi invalidado)
+      voltarEtapaEmail();
+      document.getElementById('cancelStepEmailMsg').innerHTML = '<div style="color:#166534;">Cancelamento concluído. Se quiser cancelar outro, peça um novo código.</div>';
+    }
+
+    // ===== CANCEL BOOKING (fluxo do profissional) =====
     function cancelBooking(bookingId) {
       if (!confirm('Deseja cancelar este agendamento? O horário ficará disponível novamente.')) return;
       const bookings = getData(STORAGE_KEYS.bookings) || [];
@@ -4337,7 +4498,6 @@
           <h4>Pré-Anamnese</h4>
           <div class="anamnesis-field"><label>Missão:</label><p>${esc(booking.missao) || '-'}</p></div>
           <div class="anamnesis-field"><label>Casa Comunitária:</label><p>${esc(booking.casaComunidade) || '-'}</p></div>
-          <div class="anamnesis-field"><label>Cidade/Estado:</label><p>${esc(a.city) || '-'}</p></div>
           <div class="anamnesis-field"><label>Tempo na Comunidade:</label><p>${esc(a.timeCommunity) || '-'}</p></div>
           <div class="anamnesis-field"><label>Motivo da procura:</label><p>${esc(a.reason) || '-'}</p></div>
           <div class="anamnesis-field"><label>Acompanhamento psicológico anterior:</label><p>${prevTherapyMap[a.previousTherapy] || '-'}</p></div>
