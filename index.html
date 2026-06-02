@@ -1767,7 +1767,8 @@
         <div class="form-row">
           <div class="form-group">
             <label>Telefone (WhatsApp) <span class="required">*</span></label>
-            <input type="tel" class="form-input" id="bkPhone" placeholder="(00) 00000-0000">
+            <input type="tel" class="form-input" id="bkPhone" placeholder="(DDD) 00000-0000 ou +DDI 0000 0000">
+            <small style="display:block; margin-top:0.35rem; font-size:0.78rem; color:var(--text-light);">Está fora do Brasil? Inclua o código do país com <strong>+</strong> (ex.: +351 912 345 678).</small>
           </div>
           <div class="form-group">
             <label>Tipo de atendimento <span class="required">*</span></label>
@@ -2007,19 +2008,49 @@
       <div class="modal-body">
         <div class="booking-summary" id="returnPatientInfo"></div>
 
+        <div id="returnMandatoryNotice" style="display:none; background:#fef3c7; border-left:4px solid #d97706; padding:0.8rem; border-radius:6px; margin-bottom:1rem; font-size:0.9rem;">
+          <strong>Importante:</strong> agende o retorno agora para reservar o horário no sistema. Se for combinado apenas verbalmente, outro paciente pode marcar nesse mesmo horário.
+        </div>
+
         <div class="form-section-title">Escolha o horário do retorno</div>
+
+        <!-- Modo 1: usar horário existente -->
         <div class="form-group">
-          <label>Selecione um dos seus horários disponíveis <span class="required">*</span></label>
+          <label>Use um horário disponível seu</label>
           <select class="form-input" id="returnSlotSelect">
             <option value="">-- Carregando horários --</option>
           </select>
         </div>
-        <p style="font-size: 0.8rem; color: var(--text-light); margin-top: -0.5rem;">
-          Só aparecem horários futuros que ainda não estão ocupados. Se não tem horário, crie um na aba "Meus Horários" primeiro.
-        </p>
+
+        <!-- Toggle / criar novo -->
+        <div style="text-align:center; margin: 0.8rem 0;">
+          <a href="#" id="returnToggleCreate" onclick="event.preventDefault(); toggleCriarSlotRetorno()" style="font-size:0.9rem; color: var(--primary); font-weight:600;">+ Criar um novo horário e reservar para este paciente</a>
+        </div>
+
+        <!-- Modo 2: criar horário novo na hora -->
+        <div id="returnCreateSlotBox" style="display:none; background:#f0f4ff; border:1px solid var(--border); border-radius:8px; padding:1rem; margin-top:0.5rem;">
+          <div style="font-weight:600; color:var(--primary); margin-bottom:0.5rem;">Criar novo horário</div>
+          <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:0.8rem;">Este horário será criado e reservado diretamente para <strong id="returnCreateSlotPatient"></strong>. Não ficará visível para outros pacientes.</p>
+          <div class="form-group">
+            <label>Data <span class="required">*</span></label>
+            <input type="date" class="form-input" id="returnNewDate">
+          </div>
+          <div class="form-group">
+            <label>Horário <span class="required">*</span></label>
+            <input type="time" class="form-input" id="returnNewTime">
+          </div>
+          <div class="form-group">
+            <label>Duração (minutos) <span class="required">*</span></label>
+            <select class="form-input" id="returnNewDuration">
+              <option value="60">60 minutos</option>
+              <option value="90">90 minutos</option>
+              <option value="45">45 minutos</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeReturnModal()">Cancelar</button>
+        <button class="btn btn-outline" id="returnCancelBtn" onclick="closeReturnModal()">Cancelar</button>
         <button class="btn btn-success" onclick="confirmReturnBooking()">Confirmar Retorno</button>
       </div>
     </div>
@@ -4013,10 +4044,10 @@
       const finishedBookingId = completingBookingId;
       closeCompleteModal();
 
-      // If return, open return modal right away
+      // If return, open return modal right away (obrigatório agendar)
       if (step === 'return') {
-        showToast('Sessão concluída! Agora escolha o horário do retorno.', 'success');
-        setTimeout(() => openReturnModal(finishedBookingId), 500);
+        showToast('Sessão concluída! Agora agende o retorno (obrigatório).', 'success');
+        setTimeout(() => openReturnModal(finishedBookingId, true), 500);
       } else {
         showToast('Sessão concluída! Próximo passo: ' + getNextStepLabel(step), 'success');
 
@@ -4059,11 +4090,16 @@
 
     function showAvaliacaoWhatsApp(booking) {
       const firstName = booking.patientName ? booking.patientName.split(' ')[0] : 'paciente';
-      const phone = (booking.patientPhone || '').replace(/\D/g, '');
+      const rawPhone = (booking.patientPhone || '').trim();
+      const digits = rawPhone.replace(/\D/g, '');
+      // Se o paciente informou o número com '+' (exterior), usa só os dígitos (DDI já incluso).
+      // Se não, assume Brasil e prefixa com 55.
+      const isIntl = rawPhone.startsWith('+');
+      const waNumber = isIntl ? digits : (digits ? `55${digits}` : '');
       const msg = encodeURIComponent(
         `Olá, ${firstName}! 😊\n\nObrigado(a) por participar do Plantão de Aconselhamento Psicológico da Comunidade Católica Shalom.\n\nGostaríamos de saber sua opinião sobre o atendimento recebido. Por favor, dedique alguns minutos para responder nossa avaliação:\n\n${AVALIACAO_URL}\n\nSua resposta é muito importante para continuarmos melhorando nosso serviço. 🙏`
       );
-      const waUrl = phone ? `https://wa.me/55${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      const waUrl = waNumber ? `https://wa.me/${waNumber}?text=${msg}` : `https://wa.me/?text=${msg}`;
 
       const html = `
         <div style="text-align:center; padding: 0.5rem 0;">
@@ -4087,13 +4123,32 @@
     // ===== SCHEDULE RETURN VISIT =====
     let returningBookingId = null;
 
-    function openReturnModal(bookingId) {
+    // Flag: quando true, o modal não pode ser fechado sem agendar (vem da conclusão da consulta)
+    let returnMandatory = false;
+
+    function openReturnModal(bookingId, mandatory) {
       const bookings = getData(STORAGE_KEYS.bookings) || [];
       const slots = getData(STORAGE_KEYS.slots) || [];
       const booking = bookings.find(b => b.id === bookingId);
       if (!booking) return;
 
       returningBookingId = bookingId;
+      returnMandatory = !!mandatory;
+
+      // Visual: mostra aviso e desabilita o botão Cancelar quando obrigatório
+      document.getElementById('returnMandatoryNotice').style.display = returnMandatory ? 'block' : 'none';
+      const cancelBtn = document.getElementById('returnCancelBtn');
+      if (cancelBtn) {
+        cancelBtn.textContent = returnMandatory ? 'Agendar depois (não recomendado)' : 'Cancelar';
+      }
+
+      // Reset modo "criar slot"
+      document.getElementById('returnCreateSlotBox').style.display = 'none';
+      document.getElementById('returnToggleCreate').textContent = '+ Criar um novo horário e reservar para este paciente';
+      document.getElementById('returnNewDate').value = '';
+      document.getElementById('returnNewTime').value = '';
+      document.getElementById('returnNewDuration').value = '60';
+      document.getElementById('returnCreateSlotPatient').textContent = booking.patientName;
 
       // Count sessions
       const patientSessions = bookings.filter(b =>
@@ -4142,54 +4197,118 @@
       document.body.style.overflow = 'hidden';
     }
 
+    function toggleCriarSlotRetorno() {
+      const box = document.getElementById('returnCreateSlotBox');
+      const link = document.getElementById('returnToggleCreate');
+      if (box.style.display === 'none') {
+        box.style.display = 'block';
+        link.textContent = '− Usar um horário já existente';
+        // Limpa a seleção de slot existente para evitar confusão
+        document.getElementById('returnSlotSelect').value = '';
+      } else {
+        box.style.display = 'none';
+        link.textContent = '+ Criar um novo horário e reservar para este paciente';
+      }
+    }
+
     function closeReturnModal() {
+      // Se obrigatório (veio da conclusão), confirma antes de deixar sair sem agendar
+      if (returnMandatory && returningBookingId) {
+        const bookings = getData(STORAGE_KEYS.bookings) || [];
+        const orig = bookings.find(b => b.id === returningBookingId);
+        const hasReturn = orig && bookings.some(b => b.originalBookingId === orig.id && b.status !== 'cancelled');
+        if (orig && !hasReturn) {
+          const ok = confirm(
+            'Atenção: você ainda não agendou o retorno de ' + orig.patientName + '.\n\n' +
+            'Se sair sem agendar, o horário fica disponível para outros pacientes e pode haver conflito.\n\n' +
+            'Tem certeza que quer sair sem agendar o retorno agora?'
+          );
+          if (!ok) return;
+        }
+      }
+
       document.getElementById('returnModal').classList.remove('show');
       document.body.style.overflow = 'auto';
 
-      // Se o profissional concluiu uma sessão escolhendo "retorno" e depois fechou o modal
-      // sem selecionar slot, o caso fica sem retorno agendado. Avisa para que ele possa
-      // reabrir quando criar um horário, evitando caso "preso".
       if (returningBookingId) {
         const bookings = getData(STORAGE_KEYS.bookings) || [];
         const orig = bookings.find(b => b.id === returningBookingId);
         if (orig && orig.status === 'completed' && orig.nextStep === 'return') {
           const hasReturn = bookings.some(b => b.originalBookingId === returningBookingId && b.status !== 'cancelled');
           if (!hasReturn) {
-            showToast(`Retorno de ${orig.patientName} ainda não agendado. Use "Agendar Retorno" no histórico quando tiver um horário disponível.`, 'info');
+            showToast(`Retorno de ${orig.patientName} ainda não agendado. Use "Agendar Retorno" no histórico quando tiver um horário.`, 'warning');
           }
         }
       }
 
       returningBookingId = null;
+      returnMandatory = false;
     }
 
     function confirmReturnBooking() {
+      if (!returningBookingId) return;
+
+      const useNewSlot = document.getElementById('returnCreateSlotBox').style.display !== 'none';
       const slotId = document.getElementById('returnSlotSelect').value;
-      if (!slotId) {
-        showToast('Selecione um horário para o retorno.', 'error');
+
+      if (!useNewSlot && !slotId) {
+        showToast('Selecione um horário para o retorno ou crie um novo.', 'error');
         return;
       }
-
-      if (!returningBookingId) return;
 
       const bookings = getData(STORAGE_KEYS.bookings) || [];
       const slots = getData(STORAGE_KEYS.slots) || [];
       const originalBooking = bookings.find(b => b.id === returningBookingId);
       if (!originalBooking) return;
 
-      const slot = slots.find(s => s.id === slotId);
+      let slot;
 
-      // Check if slot still available
-      const alreadyBooked = bookings.some(b => b.slotId === slotId && b.status !== 'cancelled');
-      if (alreadyBooked) {
-        showToast('Este horário acabou de ser ocupado. Selecione outro.', 'error');
-        return;
+      if (useNewSlot) {
+        // Criar slot novo na hora e reservar para o paciente
+        const date = document.getElementById('returnNewDate').value;
+        const time = document.getElementById('returnNewTime').value;
+        const duration = parseInt(document.getElementById('returnNewDuration').value || '60');
+        if (!date || !time || !duration) {
+          showToast('Preencha data, horário e duração do novo horário.', 'error');
+          return;
+        }
+        const dt = new Date(date + 'T' + time + ':00');
+        if (isNaN(dt.getTime()) || dt.getTime() <= Date.now()) {
+          showToast('A data/horário do retorno deve ser no futuro.', 'error');
+          return;
+        }
+        // Verifica conflito: profissional já tem outro slot no mesmo dia/hora?
+        const conflict = slots.some(s => s.profId === loggedProfessional.id && s.date === date && s.time === time);
+        if (conflict) {
+          showToast('Você já tem outro horário nesse mesmo dia e hora.', 'error');
+          return;
+        }
+        slot = {
+          id: 'slot-' + Date.now(),
+          profId: loggedProfessional.id,
+          date: date,
+          time: time,
+          duration: duration,
+          createdAt: new Date().toISOString()
+        };
+        slots.push(slot);
+        setData(STORAGE_KEYS.slots, slots);
+        syncToApi('Slots', slots);
+      } else {
+        slot = slots.find(s => s.id === slotId);
+        if (!slot) return;
+        // Check if slot still available
+        const alreadyBooked = bookings.some(b => b.slotId === slotId && b.status !== 'cancelled');
+        if (alreadyBooked) {
+          showToast('Este horário acabou de ser ocupado. Selecione outro.', 'error');
+          return;
+        }
       }
 
       // Create the return booking reusing patient data
       const returnBooking = {
         id: 'bk-' + Date.now(),
-        slotId: slotId,
+        slotId: slot.id,
         profId: loggedProfessional.id,
         patientName: originalBooking.patientName,
         patientEmail: originalBooking.patientEmail,
