@@ -1540,7 +1540,38 @@
       <!-- Tab: All Slots -->
       <div id="admin-tab-all-slots" class="tab-panel">
         <div class="slot-manager">
-          <h3>Todos os Horarios</h3>
+          <h3>Todos os Horários</h3>
+
+          <!-- Criar novo horário para qualquer profissional -->
+          <div style="background:#f0f4ff;border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1.5rem;">
+            <h4 style="margin:0 0 0.8rem 0;color:var(--primary);">➕ Criar horário para um profissional</h4>
+            <div style="display:grid;grid-template-columns:2fr 1.2fr 0.8fr 0.8fr auto;gap:0.6rem;align-items:end;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.85rem;">Profissional</label>
+                <select class="form-input" id="adminNewSlotProf">
+                  <option value="">-- Selecione --</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.85rem;">Data</label>
+                <input type="date" class="form-input" id="adminNewSlotDate">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.85rem;">Horário</label>
+                <input type="time" class="form-input" id="adminNewSlotTime">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.85rem;">Duração</label>
+                <select class="form-input" id="adminNewSlotDuration">
+                  <option value="60">60 min</option>
+                  <option value="90">90 min</option>
+                  <option value="45">45 min</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="adminCriarSlot()" style="height:fit-content;">Criar</button>
+            </div>
+          </div>
+
           <div id="adminSlotsContainer"></div>
         </div>
       </div>
@@ -6016,6 +6047,17 @@
       const bookings = getData(STORAGE_KEYS.bookings) || [];
       const today = formatDate(new Date());
 
+      // Popula o select de profissionais para criar novo horário
+      const profSel = document.getElementById('adminNewSlotProf');
+      if (profSel) {
+        const current = profSel.value;
+        const aprovados = profs.filter(p => (p.status || 'aprovado') === 'aprovado')
+          .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        profSel.innerHTML = '<option value="">-- Selecione --</option>' +
+          aprovados.map(p => `<option value="${esc(p.id)}">${esc(p.name)}${p.specialty ? ' (' + esc(p.specialty) + ')' : ''}</option>`).join('');
+        if (current) profSel.value = current;
+      }
+
       const futureSlots = slots.filter(s => s.date >= today).sort((a, b) => {
         if (a.date === b.date) return a.time.localeCompare(b.time);
         return a.date.localeCompare(b.date);
@@ -6030,26 +6072,99 @@
         return;
       }
 
-      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Profissional</th><th>Data</th><th>Dia</th><th>Horario</th><th>Duracao</th><th>Status</th></tr></thead><tbody>';
+      let html = '<div style="overflow-x: auto;"><table class="slots-table"><thead><tr><th>Profissional</th><th>Data</th><th>Dia</th><th>Horário</th><th>Duração</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
 
       for (const s of futureSlots) {
         const prof = profs.find(p => p.id === s.profId);
         const booking = bookings.find(b => b.slotId === s.id && b.status !== 'cancelled');
         const status = booking ? 'booked' : 'available';
-        const statusLabel = booking ? `Agendado (${booking.patientName})` : 'Disponivel';
+        const statusLabel = booking ? `Agendado (${esc(booking.patientName)})` : 'Disponível';
+
+        const acao = booking
+          ? `<span style="font-size:0.75rem;color:var(--text-light);">Cancelar agendamento antes</span>`
+          : `<button class="btn btn-sm" style="background:var(--error);color:#fff;" onclick="adminExcluirSlot('${esc(s.id)}')">Excluir</button>`;
 
         html += `<tr>
-          <td><strong>${prof ? prof.name : '?'}</strong></td>
+          <td><strong>${prof ? esc(prof.name) : '?'}</strong></td>
           <td>${formatDateBR(s.date)}</td>
           <td>${getDayNameFull(s.date)}</td>
-          <td>${s.time}</td>
-          <td>${s.duration} min</td>
+          <td>${esc(s.time)}</td>
+          <td>${esc(String(s.duration))} min</td>
           <td><span class="status-tag ${status}">${statusLabel}</span></td>
+          <td>${acao}</td>
         </tr>`;
       }
 
       html += '</tbody></table></div>';
       document.getElementById('adminSlotsContainer').innerHTML = html;
+    }
+
+    // ===== ADMIN: Criar / Excluir horários =====
+    function adminCriarSlot() {
+      const profId = document.getElementById('adminNewSlotProf').value;
+      const date = document.getElementById('adminNewSlotDate').value;
+      const time = document.getElementById('adminNewSlotTime').value;
+      const duration = parseInt(document.getElementById('adminNewSlotDuration').value || '60');
+
+      if (!profId || !date || !time || !duration) {
+        showToast('Preencha profissional, data, horário e duração.', 'error');
+        return;
+      }
+      const dt = new Date(date + 'T' + time + ':00');
+      if (isNaN(dt.getTime()) || dt.getTime() <= Date.now()) {
+        showToast('O horário deve ser no futuro.', 'error');
+        return;
+      }
+
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const conflict = slots.some(s => s.profId === profId && s.date === date && s.time === time);
+      if (conflict) {
+        showToast('Este profissional já tem um horário nessa mesma data e hora.', 'error');
+        return;
+      }
+
+      const newSlot = {
+        id: 'slot-' + Date.now(),
+        profId: profId,
+        date: date,
+        time: time,
+        duration: duration,
+        createdAt: new Date().toISOString()
+      };
+      slots.push(newSlot);
+      setData(STORAGE_KEYS.slots, slots);
+      syncToApi('Slots', slots);
+
+      // Limpa apenas data/hora, mantém profissional selecionado
+      document.getElementById('adminNewSlotDate').value = '';
+      document.getElementById('adminNewSlotTime').value = '';
+      showToast('Horário criado com sucesso.', 'success');
+      renderAdminSlots();
+    }
+
+    async function adminExcluirSlot(slotId) {
+      const bookings = getData(STORAGE_KEYS.bookings) || [];
+      const hasBooking = bookings.some(b => b.slotId === slotId && b.status !== 'cancelled');
+      if (hasBooking) {
+        showToast('Não é possível excluir: este horário tem agendamento ativo. Cancele o agendamento antes.', 'error');
+        return;
+      }
+      if (!confirm('Excluir este horário? Essa ação não pode ser desfeita.')) return;
+
+      const slots = getData(STORAGE_KEYS.slots) || [];
+      const remaining = slots.filter(s => s.id !== slotId);
+      setData(STORAGE_KEYS.slots, remaining);
+
+      // Também remove no backend (delete direto na aba Slots)
+      try {
+        if (API_URL) {
+          const r = await apiCall({ action: 'delete', sheet: 'Slots', id: slotId });
+          if (!r.ok) console.warn('Falha ao excluir slot no servidor:', r.error);
+        }
+      } catch (e) { console.warn('Erro delete slot:', e); }
+
+      showToast('Horário excluído.', 'success');
+      renderAdminSlots();
     }
 
     // ===== MISSOES CRUD =====
