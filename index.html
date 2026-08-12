@@ -2373,14 +2373,31 @@
 
       let successCount = 0;
 
-      // Buscar uma aba por vez para evitar sobrecarregar o Apps Script
-      for (const sheet of sheets) {
-        const res = await apiCall({ action: 'getAll', sheet: sheet });
-        if (!res.ok) {
-          console.warn('[API] Falha ao buscar ' + sheet + ' (' + res.reason + '):', res.error);
-          continue;
+      // Busca TODAS as abas em UMA única requisição (getAllMulti).
+      // Antes eram 5 chamadas sequenciais ao Apps Script (~1-3s cada = ~10s total).
+      // Se o backend ainda não tiver o endpoint, cai no modo antigo automaticamente.
+      const t0 = performance.now();
+      let fetched = null;
+      const multi = await apiCall({ action: 'getAllMulti', sheets: sheets });
+      if (multi.ok && multi.data && typeof multi.data === 'object' && !Array.isArray(multi.data)) {
+        fetched = multi.data;
+        console.log('[API] getAllMulti OK em ' + Math.round(performance.now() - t0) + 'ms');
+      } else {
+        console.warn('[API] getAllMulti indisponível, usando modo sequencial (backend desatualizado?)');
+        fetched = {};
+        for (const sheet of sheets) {
+          const res = await apiCall({ action: 'getAll', sheet: sheet });
+          if (!res.ok) {
+            console.warn('[API] Falha ao buscar ' + sheet + ' (' + res.reason + '):', res.error);
+            continue;
+          }
+          fetched[sheet] = res.data;
         }
-        const data = res.data;
+        console.log('[API] sync sequencial em ' + Math.round(performance.now() - t0) + 'ms');
+      }
+
+      for (const sheet of sheets) {
+        const data = fetched[sheet];
         if (data !== null && data !== undefined) {
           let processedData = data;
           // Normaliza datas dos slots
